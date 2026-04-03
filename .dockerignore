@@ -1,0 +1,16 @@
+# Local runtime data
+data/
+results/
+cache/
+
+# VCS / editor
+.git/
+.github/
+.DS_Store
+.Rproj.user/
+*.swp
+*.swo
+
+# Archives / logs
+*.tar.gz
+*.log

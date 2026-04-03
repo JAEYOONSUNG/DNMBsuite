@@ -1,0 +1,19 @@
+version: "3.9"
+
+services:
+  dnmbsuite:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        DNMB_REF: ${DNMB_REF:-master}
+    image: ghcr.io/jaeyoonsung/dnmbsuite:${IMAGE_TAG:-latest}
+    container_name: dnmbsuite
+    volumes:
+      - ./data:/data
+      - ./results:/results
+      - ~/.dnmb-cache:/opt/dnmb/cache
+    environment:
+      - DNMB_CACHE_ROOT=/opt/dnmb/cache
+    working_dir: /data
+    command: ["R"]
