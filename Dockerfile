@@ -54,6 +54,9 @@ RUN mkdir -p ${DNMB_CACHE_ROOT}/db_modules/clean/split100 \
        "tqdm>=4.64" \
        gdown
 
+RUN mkdir -p /opt/dnmb-seed/clean/split100 \
+    && tar -C ${DNMB_CACHE_ROOT}/db_modules/clean/split100 -czf /opt/dnmb-seed/clean/split100/conda_env.tar.gz conda_env
+
 RUN rm -rf /opt/miniforge
 
 RUN R -e ' \

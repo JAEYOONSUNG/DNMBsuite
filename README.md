@@ -181,6 +181,7 @@ This means:
 - module databases are downloaded once and reused
 - Docker and local DNMB runs can share the same cache
 - users normally do not need to set `module_cache_root` manually inside the container
+- the DNMBsuite container seeds the CLEAN Python environment into the mounted host cache when it is missing
 
 ## Core Version Selection
 
