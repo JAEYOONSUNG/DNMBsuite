@@ -17,8 +17,45 @@ Only one thing is required from the user:
 
 ## Recommended Quick Start
 
-The recommended way to use DNMBsuite is the bundled shell launcher.
-It hides the Docker `run` and volume-mount details from the user.
+The simplest way to use DNMBsuite is the published Docker image.
+
+Pull the image:
+
+```bash
+docker pull ghcr.io/jaeyoonsung/dnmbsuite:latest
+```
+
+Run from a folder that already contains one or more GenBank files:
+
+```bash
+cd /path/to/folder/with/genbank
+docker run --rm \
+  -v "$PWD:/data" \
+  -v "$HOME/.dnmb-cache:/opt/dnmb/cache" \
+  ghcr.io/jaeyoonsung/dnmbsuite:latest
+```
+
+Run a single GenBank file explicitly:
+
+```bash
+docker run --rm \
+  -v /path/to/parent-dir:/data \
+  -v "$HOME/.dnmb-cache:/opt/dnmb/cache" \
+  ghcr.io/jaeyoonsung/dnmbsuite:latest \
+  /data/GCF_000143145.1.gbff
+```
+
+What this does:
+
+- uses the working directory as `/data`
+- mounts `~/.dnmb-cache` to `/opt/dnmb/cache`
+- detects `*.gb`, `*.gbk`, or `*.gbff` automatically in folder mode
+- writes outputs back into the same host folder
+
+## Optional Shell Launcher
+
+If you prefer not to type the Docker command manually, use the bundled shell
+launcher.
 
 Setup:
 
@@ -53,40 +90,11 @@ bash run-dnmb.sh /path/to/GCF_000143145.1.gbff --skip-modules interproscan,eggno
 
 What this launcher does:
 
-- pulls `ghcr.io/jaeyoonsung/dnmbsuite:v1.0.2` automatically when missing
+- pulls `ghcr.io/jaeyoonsung/dnmbsuite:latest` automatically when missing
 - mounts the output directory to `/data`
 - mounts `~/.dnmb-cache` to `/opt/dnmb/cache`
 - copies the input GenBank file into the output directory when needed
-- runs `DNMB::run_DNMB(clean_previous = TRUE)`
-
-## Direct Docker Usage
-
-If you want to use Docker directly without the shell launcher, the image also
-contains its own built-in auto-run entrypoint.
-
-Minimal folder-based usage:
-
-```bash
-docker run --rm \
-  -v /path/to/workdir:/data \
-  -v "$HOME/.dnmb-cache:/opt/dnmb/cache" \
-  ghcr.io/jaeyoonsung/dnmbsuite:v1.0.2
-```
-
-Requirements:
-
-- put one or more `*.gb`, `*.gbk`, or `*.gbff` files inside `/path/to/workdir`
-- outputs are written back into that same folder
-
-Run a single file explicitly:
-
-```bash
-docker run --rm \
-  -v /path/to/parent-dir:/data \
-  -v "$HOME/.dnmb-cache:/opt/dnmb/cache" \
-  ghcr.io/jaeyoonsung/dnmbsuite:v1.0.2 \
-  /data/GCF_000143145.1.gbff
-```
+- runs the same built-in container launcher
 
 In single-file mode, DNMBsuite stages only that file, runs the analysis, and
 writes outputs back next to the original input file.
