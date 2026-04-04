@@ -2,44 +2,87 @@
 
 Docker wrapper repository for the `DNMB` core package.
 
-## Design
+## What You Need To Provide
 
-- `DNMB` remains the core R package repository.
-- `DNMBsuite` publishes the container image and compose wrapper.
-- Large databases are not baked into the image.
-- Runtime caches are stored in `~/.dnmb-cache` on the host and mounted into the container at `/opt/dnmb/cache`.
+Only one thing is required from the user:
 
-## Quick Start
+- one or more input GenBank files (`*.gb`, `*.gbk`, or `*.gbff`)
 
-1. Create a working directory and put your GenBank input into `data/`.
-2. Mount `~/.dnmb-cache` so downloaded module databases are reused.
-3. Run `DNMB::run_DNMB()` inside the container from `/data`.
+## What DNMBsuite Does Automatically
 
-Example directory layout:
+- installs the DNMB core package inside the container image
+- uses a shared host cache at `~/.dnmb-cache`
+- downloads module databases and tool assets on first use when needed
+- reuses the shared cache on later runs
+
+## Recommended Quick Start
+
+Create one working directory and put your GenBank file there.
+DNMB writes outputs back into the same mounted working directory.
+
+Example layout:
 
 ```text
 my-run/
-├── data/
-│   └── GCF_000143145.1.gbff
-└── results/
+└── GCF_000143145.1.gbff
 ```
 
-Example one-shot run from that directory:
+### Option A. Pull the published image
+
+```bash
+docker pull ghcr.io/jaeyoonsung/dnmbsuite:v1.0.2
+```
+
+### Option B. Build locally from this repository
+
+```bash
+docker build \
+  --build-arg DNMB_REF=v1.0.2 \
+  -t ghcr.io/jaeyoonsung/dnmbsuite:v1.0.2 .
+```
+
+### Run
+
+From the parent directory of `my-run/`:
 
 ```bash
 docker run --rm \
-  -v "$(pwd)/data:/data" \
-  -v "$(pwd)/results:/results" \
+  -v "$(pwd)/my-run:/data" \
   -v "$HOME/.dnmb-cache:/opt/dnmb/cache" \
   ghcr.io/jaeyoonsung/dnmbsuite:v1.0.2 \
   Rscript -e 'library(DNMB); setwd("/data"); run_DNMB(clean_previous = TRUE)'
 ```
 
-Expected behavior:
+### Output location
 
-- DNMB looks for `*.gb`, `*.gbk`, or `*.gbff` inside `/data`.
-- Results are written back into `/data` unless the core function writes a separate module-specific output folder.
-- Shared module caches are reused from `~/.dnmb-cache`.
+Outputs are written into the same host folder that contains the input GenBank
+file.
+
+Example output structure:
+
+```text
+my-run/
+├── GCF_000143145.1.gbff
+├── GCF_000143145_total.xlsx
+├── dnmb_interproscan/
+├── dnmb_module_clean/
+├── dnmb_module_defensefinder/
+├── dnmb_module_eggnog/
+├── dnmb_module_gapmindaa/
+├── dnmb_module_gapmindcarbon/
+├── dnmb_module_iselement/
+├── dnmb_module_merops/
+├── dnmb_module_pazy/
+├── dnmb_module_prophage/
+├── dnmb_module_rebasefinder/
+└── visualizations/
+```
+
+### First-run behavior
+
+- the first run can take a long time because module assets may need to be downloaded into `~/.dnmb-cache`
+- later runs are much faster because DNMB reuses the shared cache and matching previous outputs
+- `clean_previous = TRUE` removes stale run artifacts but preserves matching reusable outputs when the input genome has not changed
 
 ## Build
 
@@ -81,8 +124,7 @@ Open an interactive R session inside the container:
 
 ```bash
 docker run --rm -it \
-  -v "$(pwd)/data:/data" \
-  -v "$(pwd)/results:/results" \
+  -v "$(pwd)/my-run:/data" \
   -v "$HOME/.dnmb-cache:/opt/dnmb/cache" \
   ghcr.io/jaeyoonsung/dnmbsuite:v1.0.2 R
 ```
@@ -101,8 +143,7 @@ Run DNMB directly without opening an interactive shell:
 
 ```bash
 docker run --rm \
-  -v "$(pwd)/data:/data" \
-  -v "$(pwd)/results:/results" \
+  -v "$(pwd)/my-run:/data" \
   -v "$HOME/.dnmb-cache:/opt/dnmb/cache" \
   ghcr.io/jaeyoonsung/dnmbsuite:v1.0.2 \
   Rscript -e 'library(DNMB); setwd("/data"); run_DNMB(clean_previous = TRUE)'
@@ -112,8 +153,7 @@ docker run --rm \
 
 ```bash
 docker run --rm \
-  -v "$(pwd)/data:/data" \
-  -v "$(pwd)/results:/results" \
+  -v "$(pwd)/my-run:/data" \
   -v "$HOME/.dnmb-cache:/opt/dnmb/cache" \
   ghcr.io/jaeyoonsung/dnmbsuite:v1.0.2 \
   Rscript -e 'library(DNMB); setwd("/data"); run_DNMB(module_dbCAN = TRUE, module_MEROPS = TRUE, module_CLEAN = TRUE, module_PAZy = TRUE, module_GapMind = TRUE, module_DefenseFinder = TRUE, module_REBASEfinder = TRUE, module_ISelement = TRUE, module_Prophage = TRUE, module_EggNOG = TRUE, module_InterProScan = TRUE, clean_previous = TRUE)'
@@ -121,7 +161,7 @@ docker run --rm \
 
 ### Notes for testers
 
-- Put exactly the input GenBank files you want to analyze under `data/`.
+- Put exactly the input GenBank files you want to analyze into the mounted host work directory.
 - The first run can take a long time because module assets may need to be downloaded into `~/.dnmb-cache`.
 - Later runs should be much faster because DNMB reuses the shared cache and matching previous outputs.
 - If you want a clean rerun but still keep reusable outputs, keep `clean_previous = TRUE`. The current DNMB logic preserves matching cached module and external annotation outputs when the input genome has not changed.
@@ -131,7 +171,7 @@ docker run --rm \
 Create runtime directories first:
 
 ```bash
-mkdir -p data results
+mkdir -p my-run
 ```
 
 Build and open interactive R:
