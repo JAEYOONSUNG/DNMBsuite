@@ -11,7 +11,25 @@ services:
     container_name: dnmbsuite
     volumes:
       - ./data:/data
-      - ./results:/results
+      - ~/.dnmb-cache:/opt/dnmb/cache
+    environment:
+      - DNMB_CACHE_ROOT=/opt/dnmb/cache
+    working_dir: /data
+    command:
+      - Rscript
+      - -e
+      - library(DNMB); setwd("/data"); run_DNMB(clean_previous = TRUE)
+
+  dnmbshell:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        DNMB_REF: ${DNMB_REF:-v1.0.2}
+    image: ghcr.io/jaeyoonsung/dnmbsuite:${IMAGE_TAG:-v1.0.2}
+    container_name: dnmbsuite-shell
+    volumes:
+      - ./data:/data
       - ~/.dnmb-cache:/opt/dnmb/cache
     environment:
       - DNMB_CACHE_ROOT=/opt/dnmb/cache

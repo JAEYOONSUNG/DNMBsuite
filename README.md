@@ -17,14 +17,40 @@ Only one thing is required from the user:
 
 ## Recommended Quick Start
 
-Create one working directory and put your GenBank file there.
-DNMB writes outputs back into the same mounted working directory.
+The simplest way to run DNMBsuite is to provide a GenBank path directly.
+By default, DNMB writes outputs next to the input file.
+
+Run with default output location:
+
+```bash
+./run-dnmb.sh /path/to/GCF_000143145.1.gbff
+```
+
+Run with a custom output directory:
+
+```bash
+./run-dnmb.sh /path/to/GCF_000143145.1.gbff /path/to/output-dir
+```
+
+What this wrapper does:
+
+- mounts the output directory to `/data`
+- mounts `~/.dnmb-cache` to `/opt/dnmb/cache`
+- copies the input GenBank file into the output directory when needed
+- runs `DNMB::run_DNMB(clean_previous = TRUE)`
+
+## Repository-Style Quick Start
+
+If you prefer to run from inside the repository with Docker Compose, create a
+`data/` directory in the repository root and put your GenBank file there.
+DNMB writes outputs back into the same `data/` directory.
 
 Example layout:
 
 ```text
-my-run/
-└── GCF_000143145.1.gbff
+DNMBsuite/
+└── data/
+    └── GCF_000143145.1.gbff
 ```
 
 ### Option A. Pull the published image
@@ -43,25 +69,21 @@ docker build \
 
 ### Run
 
-From the parent directory of `my-run/`:
+From the `DNMBsuite/` directory:
 
 ```bash
-docker run --rm \
-  -v "$(pwd)/my-run:/data" \
-  -v "$HOME/.dnmb-cache:/opt/dnmb/cache" \
-  ghcr.io/jaeyoonsung/dnmbsuite:v1.0.2 \
-  Rscript -e 'library(DNMB); setwd("/data"); run_DNMB(clean_previous = TRUE)'
+docker compose up
 ```
 
 ### Output location
 
-Outputs are written into the same host folder that contains the input GenBank
-file.
+Outputs are written into the same `data/` directory that contains the input
+GenBank file.
 
 Example output structure:
 
 ```text
-my-run/
+data/
 ├── GCF_000143145.1.gbff
 ├── GCF_000143145_total.xlsx
 ├── dnmb_interproscan/
@@ -123,10 +145,7 @@ echo <GITHUB_TOKEN> | docker login ghcr.io -u <github-user> --password-stdin
 Open an interactive R session inside the container:
 
 ```bash
-docker run --rm -it \
-  -v "$(pwd)/my-run:/data" \
-  -v "$HOME/.dnmb-cache:/opt/dnmb/cache" \
-  ghcr.io/jaeyoonsung/dnmbsuite:v1.0.2 R
+docker compose run --rm dnmbshell
 ```
 
 Inside R:
@@ -142,50 +161,42 @@ run_DNMB(clean_previous = TRUE)
 Run DNMB directly without opening an interactive shell:
 
 ```bash
-docker run --rm \
-  -v "$(pwd)/my-run:/data" \
-  -v "$HOME/.dnmb-cache:/opt/dnmb/cache" \
-  ghcr.io/jaeyoonsung/dnmbsuite:v1.0.2 \
-  Rscript -e 'library(DNMB); setwd("/data"); run_DNMB(clean_previous = TRUE)'
+docker compose run --rm dnmbsuite
 ```
 
 ### One-shot run with explicit options
 
 ```bash
-docker run --rm \
-  -v "$(pwd)/my-run:/data" \
-  -v "$HOME/.dnmb-cache:/opt/dnmb/cache" \
-  ghcr.io/jaeyoonsung/dnmbsuite:v1.0.2 \
+docker compose run --rm dnmbsuite \
   Rscript -e 'library(DNMB); setwd("/data"); run_DNMB(module_dbCAN = TRUE, module_MEROPS = TRUE, module_CLEAN = TRUE, module_PAZy = TRUE, module_GapMind = TRUE, module_DefenseFinder = TRUE, module_REBASEfinder = TRUE, module_ISelement = TRUE, module_Prophage = TRUE, module_EggNOG = TRUE, module_InterProScan = TRUE, clean_previous = TRUE)'
 ```
 
 ### Notes for testers
 
-- Put exactly the input GenBank files you want to analyze into the mounted host work directory.
+- Put exactly the input GenBank files you want to analyze into `./data`.
 - The first run can take a long time because module assets may need to be downloaded into `~/.dnmb-cache`.
 - Later runs should be much faster because DNMB reuses the shared cache and matching previous outputs.
 - If you want a clean rerun but still keep reusable outputs, keep `clean_previous = TRUE`. The current DNMB logic preserves matching cached module and external annotation outputs when the input genome has not changed.
 
 ## Compose
 
-Create runtime directories first:
+Create the input directory first:
 
 ```bash
-mkdir -p my-run
+mkdir -p data
 ```
 
-Build and open interactive R:
+Build and run the pipeline:
 
 ```bash
 docker compose build
-docker compose run --rm dnmbsuite R
+docker compose up
 ```
 
-Run the pipeline directly:
+Open an interactive R shell instead:
 
 ```bash
-docker compose run --rm dnmbsuite \
-  Rscript -e 'library(DNMB); setwd("/data"); run_DNMB(clean_previous = TRUE)'
+docker compose run --rm dnmbshell
 ```
 
 Use a fixed core ref:
