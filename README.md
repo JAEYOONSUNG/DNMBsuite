@@ -36,6 +36,19 @@ Requirements:
 - put one or more `*.gb`, `*.gbk`, or `*.gbff` files inside `/path/to/workdir`
 - outputs are written back into that same folder
 
+Run a single file explicitly:
+
+```bash
+docker run --rm \
+  -v /path/to/parent-dir:/data \
+  -v "$HOME/.dnmb-cache:/opt/dnmb/cache" \
+  ghcr.io/jaeyoonsung/dnmbsuite:v1.0.2 \
+  /data/GCF_000143145.1.gbff
+```
+
+In single-file mode, DNMBsuite stages only that file, runs the analysis, and
+writes outputs back next to the original input file.
+
 If you want a wrapper that accepts a direct GenBank path, use:
 
 ```bash

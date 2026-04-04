@@ -95,14 +95,7 @@ apply_module_csv() {
   done
 }
 
-run_dnmb_default() {
-  local input_count
-  input_count=$(find /data -maxdepth 1 -type f \( -name '*.gb' -o -name '*.gbk' -o -name '*.gbff' \) | wc -l | tr -d '[:space:]')
-  if [ "$input_count" -eq 0 ]; then
-    echo "Error: no .gb/.gbk/.gbff input file found in /data" >&2
-    exit 1
-  fi
-
+build_r_arg_string() {
   local clean_previous="${DNMB_CLEAN_PREVIOUS:-TRUE}"
   local module_cpu="${DNMB_MODULE_CPU:-}"
   local prophage_backend="${DNMB_PROPHAGE_BACKEND:-}"
@@ -172,7 +165,52 @@ run_dnmb_default() {
     arg_string+="$arg"
   done
 
-  exec Rscript -e "library(DNMB); setwd(\"/data\"); run_DNMB(${arg_string})"
+  printf '%s\n' "$arg_string"
+}
+
+run_dnmb_in_dir() {
+  local workdir="$1"
+  local arg_string
+  local input_count
+  input_count=$(find "$workdir" -maxdepth 1 -type f \( -name '*.gb' -o -name '*.gbk' -o -name '*.gbff' \) | wc -l | tr -d '[:space:]')
+  if [ "$input_count" -eq 0 ]; then
+    echo "Error: no .gb/.gbk/.gbff input file found in $workdir" >&2
+    exit 1
+  fi
+  arg_string="$(build_r_arg_string)"
+  cd "$workdir"
+  exec Rscript -e "library(DNMB); run_DNMB(${arg_string})"
+}
+
+copy_tree_contents() {
+  local src_dir="$1"
+  local dest_dir="$2"
+  local entry
+  mkdir -p "$dest_dir"
+  shopt -s dotglob nullglob
+  for entry in "$src_dir"/*; do
+    cp -R "$entry" "$dest_dir/"
+  done
+  shopt -u dotglob nullglob
+}
+
+run_dnmb_single_file() {
+  local input_file="$1"
+  local output_dir="${DNMB_OUTPUT_DIR:-$(dirname "$input_file")}"
+  local stage_dir
+  stage_dir="$(mktemp -d /tmp/dnmb-single-XXXXXX)"
+  trap 'rm -rf "$stage_dir"' EXIT
+  mkdir -p "$output_dir"
+  cp -f "$input_file" "$stage_dir/$(basename "$input_file")"
+  local arg_string
+  arg_string="$(build_r_arg_string)"
+  cd "$stage_dir"
+  Rscript -e "library(DNMB); run_DNMB(${arg_string})"
+  copy_tree_contents "$stage_dir" "$output_dir"
+}
+
+run_dnmb_default() {
+  run_dnmb_in_dir /data
 }
 
 if [ "$#" -eq 0 ]; then
@@ -182,9 +220,39 @@ fi
 case "$1" in
   run|auto)
     shift
-    run_dnmb_default
+    if [ "$#" -eq 0 ]; then
+      run_dnmb_default
+    elif [ -d "$1" ]; then
+      run_dnmb_in_dir "$1"
+    elif [ -f "$1" ]; then
+      case "$1" in
+        *.gb|*.gbk|*.gbff)
+          run_dnmb_single_file "$1"
+          ;;
+        *)
+          echo "Error: input file must be .gb, .gbk, or .gbff" >&2
+          exit 1
+          ;;
+      esac
+    else
+      echo "Error: target not found: $1" >&2
+      exit 1
+    fi
     ;;
   *)
-    exec "$@"
+    if [ -d "$1" ]; then
+      run_dnmb_in_dir "$1"
+    elif [ -f "$1" ]; then
+      case "$1" in
+        *.gb|*.gbk|*.gbff)
+          run_dnmb_single_file "$1"
+          ;;
+        *)
+          exec "$@"
+          ;;
+      esac
+    else
+      exec "$@"
+    fi
     ;;
 esac
