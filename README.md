@@ -31,7 +31,7 @@ docker run --rm \
   -v "$(pwd)/data:/data" \
   -v "$(pwd)/results:/results" \
   -v "$HOME/.dnmb-cache:/opt/dnmb/cache" \
-  ghcr.io/jaeyoonsung/dnmbsuite:latest \
+  ghcr.io/jaeyoonsung/dnmbsuite:v1.0.2 \
   Rscript -e 'library(DNMB); setwd("/data"); run_DNMB(clean_previous = TRUE)'
 ```
 
@@ -48,7 +48,7 @@ Build from the pinned core release `v1.0.2`:
 ```bash
 docker build \
   --build-arg DNMB_REF=v1.0.2 \
-  -t ghcr.io/jaeyoonsung/dnmbsuite:v0.1 .
+  -t ghcr.io/jaeyoonsung/dnmbsuite:v1.0.2 .
 ```
 
 Build from a fixed core commit or tag:
@@ -64,7 +64,7 @@ docker build \
 Once the image is published to GHCR:
 
 ```bash
-docker pull ghcr.io/jaeyoonsung/dnmbsuite:latest
+docker pull ghcr.io/jaeyoonsung/dnmbsuite:v1.0.2
 ```
 
 If the package is private, authenticate first:
@@ -84,7 +84,7 @@ docker run --rm -it \
   -v "$(pwd)/data:/data" \
   -v "$(pwd)/results:/results" \
   -v "$HOME/.dnmb-cache:/opt/dnmb/cache" \
-  ghcr.io/jaeyoonsung/dnmbsuite:latest R
+  ghcr.io/jaeyoonsung/dnmbsuite:v1.0.2 R
 ```
 
 Inside R:
@@ -104,7 +104,7 @@ docker run --rm \
   -v "$(pwd)/data:/data" \
   -v "$(pwd)/results:/results" \
   -v "$HOME/.dnmb-cache:/opt/dnmb/cache" \
-  ghcr.io/jaeyoonsung/dnmbsuite:latest \
+  ghcr.io/jaeyoonsung/dnmbsuite:v1.0.2 \
   Rscript -e 'library(DNMB); setwd("/data"); run_DNMB(clean_previous = TRUE)'
 ```
 
@@ -115,7 +115,7 @@ docker run --rm \
   -v "$(pwd)/data:/data" \
   -v "$(pwd)/results:/results" \
   -v "$HOME/.dnmb-cache:/opt/dnmb/cache" \
-  ghcr.io/jaeyoonsung/dnmbsuite:latest \
+  ghcr.io/jaeyoonsung/dnmbsuite:v1.0.2 \
   Rscript -e 'library(DNMB); setwd("/data"); run_DNMB(module_dbCAN = TRUE, module_MEROPS = TRUE, module_CLEAN = TRUE, module_PAZy = TRUE, module_GapMind = TRUE, module_DefenseFinder = TRUE, module_REBASEfinder = TRUE, module_ISelement = TRUE, module_Prophage = TRUE, module_EggNOG = TRUE, module_InterProScan = TRUE, clean_previous = TRUE)'
 ```
 
@@ -200,8 +200,8 @@ DNMB_REF
 Examples:
 
 ```bash
-docker build --build-arg DNMB_REF=v1.0.2 -t ghcr.io/jaeyoonsung/dnmbsuite:v0.1 .
-docker build --build-arg DNMB_REF=v1.0.2 -t ghcr.io/jaeyoonsung/dnmbsuite:v0.1 .
+docker build --build-arg DNMB_REF=v1.0.2 -t ghcr.io/jaeyoonsung/dnmbsuite:v1.0.2 .
+docker build --build-arg DNMB_REF=v1.0.2 -t ghcr.io/jaeyoonsung/dnmbsuite:v1.0.2 .
 docker build --build-arg DNMB_REF=<commit-sha> -t ghcr.io/jaeyoonsung/dnmbsuite:dev .
 ```
 
@@ -221,4 +221,4 @@ Before first release:
 2. Confirm Actions and Packages permissions are enabled.
 3. Optionally change the default `DNMB_REF` in the workflow from `v1.0.2` to a later core release tag.
 
-After that, pushes to `main` or tags matching `v*` will publish the image automatically.
+After that, pushes to `master` or tags matching `v*` will publish the image automatically.
