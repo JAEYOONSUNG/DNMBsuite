@@ -32,12 +32,44 @@ Run with a custom output directory:
 ./run-dnmb.sh /path/to/GCF_000143145.1.gbff /path/to/output-dir
 ```
 
+Run with selected modules only:
+
+```bash
+./run-dnmb.sh /path/to/GCF_000143145.1.gbff --modules defensefinder,iselement,prophage
+```
+
+Run while disabling selected modules:
+
+```bash
+./run-dnmb.sh /path/to/GCF_000143145.1.gbff --skip-modules interproscan,eggnog --cpu 8
+```
+
 What this wrapper does:
 
 - mounts the output directory to `/data`
 - mounts `~/.dnmb-cache` to `/opt/dnmb/cache`
 - copies the input GenBank file into the output directory when needed
 - runs `DNMB::run_DNMB(clean_previous = TRUE)`
+
+Supported module names for `--modules` and `--skip-modules`:
+
+- `dbcan`
+- `merops`
+- `clean`
+- `pazy`
+- `gapmind`
+- `defensefinder`
+- `rebasefinder`
+- `iselement`
+- `prophage`
+- `eggnog`
+- `interproscan`
+
+Special values for `--modules`:
+
+- `all`
+- `none`
+- `core`
 
 ## Repository-Style Quick Start
 
