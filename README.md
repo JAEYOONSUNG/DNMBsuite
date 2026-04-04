@@ -42,7 +42,7 @@ docker run --rm \
   -v /path/to/parent-dir:/data \
   -v "$HOME/.dnmb-cache:/opt/dnmb/cache" \
   ghcr.io/jaeyoonsung/dnmbsuite:latest \
-  /data/GCF_000143145.1.gbff
+  /data/GCF_030369615.1.gbff
 ```
 
 What this does:
@@ -67,25 +67,25 @@ cd DNMBsuite
 Run with default output location:
 
 ```bash
-bash run-dnmb.sh /path/to/GCF_000143145.1.gbff
+bash run-dnmb.sh /path/to/GCF_030369615.1.gbff
 ```
 
 Run with a custom output directory:
 
 ```bash
-bash run-dnmb.sh /path/to/GCF_000143145.1.gbff /path/to/output-dir
+bash run-dnmb.sh /path/to/GCF_030369615.1.gbff /path/to/output-dir
 ```
 
 Run with selected modules only:
 
 ```bash
-bash run-dnmb.sh /path/to/GCF_000143145.1.gbff --modules defensefinder,iselement,prophage
+bash run-dnmb.sh /path/to/GCF_030369615.1.gbff --modules defensefinder,iselement,prophage
 ```
 
 Run while disabling selected modules:
 
 ```bash
-bash run-dnmb.sh /path/to/GCF_000143145.1.gbff --skip-modules interproscan,eggnog --cpu 8
+bash run-dnmb.sh /path/to/GCF_030369615.1.gbff --skip-modules interproscan,eggnog --cpu 8
 ```
 
 What this launcher does:
@@ -130,7 +130,7 @@ Example layout:
 ```text
 DNMBsuite/
 └── data/
-    └── GCF_000143145.1.gbff
+    └── GCF_030369615.1.gbff
 ```
 
 ### Option A. Pull the published image
@@ -164,8 +164,8 @@ Example output structure:
 
 ```text
 data/
-├── GCF_000143145.1.gbff
-├── GCF_000143145_total.xlsx
+├── GCF_030369615.1.gbff
+├── GCF_030369615_total.xlsx
 ├── dnmb_interproscan/
 ├── dnmb_module_clean/
 ├── dnmb_module_defensefinder/
