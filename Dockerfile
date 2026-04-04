@@ -4,7 +4,7 @@
 FROM --platform=linux/amd64 rocker/r-ver:4.4.1
 
 ARG DNMB_REPO=https://github.com/JAEYOONSUNG/DNMB.git
-ARG DNMB_REF=v1.0.2
+ARG DNMB_REF=master
 ARG DNMB_SOURCE=github
 
 ENV DEBIAN_FRONTEND=noninteractive

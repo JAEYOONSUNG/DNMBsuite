@@ -136,15 +136,15 @@ DNMBsuite/
 ### Option A. Pull the published image
 
 ```bash
-docker pull ghcr.io/jaeyoonsung/dnmbsuite:v1.0.2
+docker pull ghcr.io/jaeyoonsung/dnmbsuite:latest
 ```
 
 ### Option B. Build locally from this repository
 
 ```bash
 docker build \
-  --build-arg DNMB_REF=v1.0.2 \
-  -t ghcr.io/jaeyoonsung/dnmbsuite:v1.0.2 .
+  --build-arg DNMB_REF=master \
+  -t ghcr.io/jaeyoonsung/dnmbsuite:latest .
 ```
 
 ### Run
@@ -188,12 +188,12 @@ data/
 
 ## Build
 
-Build from the pinned core release `v1.0.2`:
+Build from the latest core on `master`:
 
 ```bash
 docker build \
-  --build-arg DNMB_REF=v1.0.2 \
-  -t ghcr.io/jaeyoonsung/dnmbsuite:v1.0.2 .
+  --build-arg DNMB_REF=master \
+  -t ghcr.io/jaeyoonsung/dnmbsuite:latest .
 ```
 
 Build from a fixed core commit or tag:
@@ -209,7 +209,7 @@ docker build \
 Once the image is published to GHCR:
 
 ```bash
-docker pull ghcr.io/jaeyoonsung/dnmbsuite:v1.0.2
+docker pull ghcr.io/jaeyoonsung/dnmbsuite:latest
 ```
 
 If the package is private, authenticate first:
@@ -252,7 +252,7 @@ docker run --rm \
   -e DNMB_MODULE_CPU=8 \
   -v /path/to/workdir:/data \
   -v "$HOME/.dnmb-cache:/opt/dnmb/cache" \
-  ghcr.io/jaeyoonsung/dnmbsuite:v1.0.2
+  ghcr.io/jaeyoonsung/dnmbsuite:latest
 ```
 
 ### Notes for testers
@@ -285,7 +285,7 @@ Open an interactive R shell instead:
 docker compose run --rm dnmbshell
 ```
 
-Use a fixed core ref:
+Use a different core ref only if you explicitly want to override the default:
 
 ```bash
 DNMB_REF=<dnmb-git-ref> docker compose build
@@ -320,25 +320,22 @@ This means:
 - users normally do not need to set `module_cache_root` manually inside the container
 - the DNMBsuite container seeds the CLEAN Python environment into the mounted host cache when it is missing
 
-## Core Version Selection
-
-The Dockerfile installs the core package from:
+## Core Source
 
 ```text
 https://github.com/JAEYOONSUNG/DNMB.git
 ```
 
-The git ref is controlled by:
+By default DNMBsuite tracks the latest core code on:
 
 ```text
-DNMB_REF
+master
 ```
 
-Examples:
+If you need to override that default, use `DNMB_REF`:
 
 ```bash
-docker build --build-arg DNMB_REF=v1.0.2 -t ghcr.io/jaeyoonsung/dnmbsuite:v1.0.2 .
-docker build --build-arg DNMB_REF=v1.0.2 -t ghcr.io/jaeyoonsung/dnmbsuite:v1.0.2 .
+docker build --build-arg DNMB_REF=master -t ghcr.io/jaeyoonsung/dnmbsuite:latest .
 docker build --build-arg DNMB_REF=<commit-sha> -t ghcr.io/jaeyoonsung/dnmbsuite:dev .
 ```
 
@@ -356,6 +353,6 @@ Before first release:
 
 1. Push this repository to `JAEYOONSUNG/DNMBsuite`.
 2. Confirm Actions and Packages permissions are enabled.
-3. Optionally change the default `DNMB_REF` in the workflow from `v1.0.2` to a later core release tag.
+3. Optionally change the default `DNMB_REF` in the workflow if you want to pin a specific core release later.
 
 After that, pushes to `master` or tags matching `v*` will publish the image automatically.

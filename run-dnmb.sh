@@ -131,7 +131,7 @@ SKIP_MODULES=""
 CPU_SPEC=""
 PROPHAGE_BACKEND=""
 CLEAN_PREVIOUS="TRUE"
-IMAGE="${DNMBSUITE_IMAGE:-ghcr.io/jaeyoonsung/dnmbsuite:v1.0.2}"
+IMAGE="${DNMBSUITE_IMAGE:-ghcr.io/jaeyoonsung/dnmbsuite:latest}"
 
 while [ "$#" -gt 0 ]; do
   case "$1" in

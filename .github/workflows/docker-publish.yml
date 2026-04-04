@@ -11,7 +11,7 @@ on:
       dnmb_ref:
         description: "DNMB core git ref to build"
         required: false
-        default: "v1.0.2"
+        default: "master"
 
 permissions:
   contents: read
@@ -34,7 +34,7 @@ jobs:
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             echo "value=${{ inputs.dnmb_ref }}" >> "$GITHUB_OUTPUT"
           else
-            echo "value=v1.0.2" >> "$GITHUB_OUTPUT"
+            echo "value=master" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Login to GHCR
