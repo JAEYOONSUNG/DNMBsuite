@@ -15,10 +15,6 @@ services:
     environment:
       - DNMB_CACHE_ROOT=/opt/dnmb/cache
     working_dir: /data
-    command:
-      - Rscript
-      - -e
-      - library(DNMB); setwd("/data"); run_DNMB(clean_previous = TRUE)
 
   dnmbshell:
     build:

@@ -17,10 +17,26 @@ Only one thing is required from the user:
 
 ## Recommended Quick Start
 
-The simplest way to run DNMBsuite is to provide a GenBank path directly.
-By default, DNMB writes outputs next to the input file.
+The image now includes its own launcher.
+If you mount a folder containing a GenBank file to `/data`, DNMBsuite starts
+the pipeline automatically.
 
-Run with default output location:
+Minimal usage:
+
+```bash
+docker pull ghcr.io/jaeyoonsung/dnmbsuite:v1.0.2
+docker run --rm \
+  -v /path/to/workdir:/data \
+  -v "$HOME/.dnmb-cache:/opt/dnmb/cache" \
+  ghcr.io/jaeyoonsung/dnmbsuite:v1.0.2
+```
+
+Requirements:
+
+- put one or more `*.gb`, `*.gbk`, or `*.gbff` files inside `/path/to/workdir`
+- outputs are written back into that same folder
+
+If you want a wrapper that accepts a direct GenBank path, use:
 
 ```bash
 ./run-dnmb.sh /path/to/GCF_000143145.1.gbff
@@ -49,7 +65,7 @@ What this wrapper does:
 - mounts the output directory to `/data`
 - mounts `~/.dnmb-cache` to `/opt/dnmb/cache`
 - copies the input GenBank file into the output directory when needed
-- runs `DNMB::run_DNMB(clean_previous = TRUE)`
+- runs the same built-in container launcher
 
 Supported module names for `--modules` and `--skip-modules`:
 
@@ -193,14 +209,18 @@ run_DNMB(clean_previous = TRUE)
 Run DNMB directly without opening an interactive shell:
 
 ```bash
-docker compose run --rm dnmbsuite
+docker compose up
 ```
 
 ### One-shot run with explicit options
 
 ```bash
-docker compose run --rm dnmbsuite \
-  Rscript -e 'library(DNMB); setwd("/data"); run_DNMB(module_dbCAN = TRUE, module_MEROPS = TRUE, module_CLEAN = TRUE, module_PAZy = TRUE, module_GapMind = TRUE, module_DefenseFinder = TRUE, module_REBASEfinder = TRUE, module_ISelement = TRUE, module_Prophage = TRUE, module_EggNOG = TRUE, module_InterProScan = TRUE, clean_previous = TRUE)'
+docker run --rm \
+  -e DNMB_MODULES=defensefinder,iselement,prophage \
+  -e DNMB_MODULE_CPU=8 \
+  -v /path/to/workdir:/data \
+  -v "$HOME/.dnmb-cache:/opt/dnmb/cache" \
+  ghcr.io/jaeyoonsung/dnmbsuite:v1.0.2
 ```
 
 ### Notes for testers
@@ -209,6 +229,8 @@ docker compose run --rm dnmbsuite \
 - The first run can take a long time because module assets may need to be downloaded into `~/.dnmb-cache`.
 - Later runs should be much faster because DNMB reuses the shared cache and matching previous outputs.
 - If you want a clean rerun but still keep reusable outputs, keep `clean_previous = TRUE`. The current DNMB logic preserves matching cached module and external annotation outputs when the input genome has not changed.
+- Advanced launcher environment variables:
+  `DNMB_MODULES`, `DNMB_SKIP_MODULES`, `DNMB_MODULE_CPU`, `DNMB_PROPHAGE_BACKEND`, `DNMB_CLEAN_PREVIOUS`
 
 ## Compose
 
