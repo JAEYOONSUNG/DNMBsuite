@@ -37,6 +37,14 @@ if ! command -v docker >/dev/null 2>&1; then
   exit 1
 fi
 
+ensure_image() {
+  local image="$1"
+  if ! docker image inspect "$image" >/dev/null 2>&1; then
+    echo "Pulling Docker image: $image"
+    docker pull "$image"
+  fi
+}
+
 normalize_module_name() {
   local raw
   raw="$(echo "$1" | tr '[:upper:]' '[:lower:]' | tr -d '[:space:]')"
@@ -225,6 +233,8 @@ mkdir -p "$CACHE_ROOT"
 if [ "$OUTPUT_ABS" != "$INPUT_DIR" ]; then
   cp -f "$INPUT_ABS" "$OUTPUT_ABS/$INPUT_BASENAME"
 fi
+
+ensure_image "$IMAGE"
 
 if [ -n "$MODULES_SPEC" ]; then
   set_all_modules FALSE

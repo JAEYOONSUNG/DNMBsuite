@@ -17,14 +17,56 @@ Only one thing is required from the user:
 
 ## Recommended Quick Start
 
-The image now includes its own launcher.
-If you mount a folder containing a GenBank file to `/data`, DNMBsuite starts
-the pipeline automatically.
+The recommended way to use DNMBsuite is the bundled shell launcher.
+It hides the Docker `run` and volume-mount details from the user.
 
-Minimal usage:
+Setup:
 
 ```bash
-docker pull ghcr.io/jaeyoonsung/dnmbsuite:v1.0.2
+git clone https://github.com/JAEYOONSUNG/DNMBsuite.git
+cd DNMBsuite
+```
+
+Run with default output location:
+
+```bash
+bash run-dnmb.sh /path/to/GCF_000143145.1.gbff
+```
+
+Run with a custom output directory:
+
+```bash
+bash run-dnmb.sh /path/to/GCF_000143145.1.gbff /path/to/output-dir
+```
+
+Run with selected modules only:
+
+```bash
+bash run-dnmb.sh /path/to/GCF_000143145.1.gbff --modules defensefinder,iselement,prophage
+```
+
+Run while disabling selected modules:
+
+```bash
+bash run-dnmb.sh /path/to/GCF_000143145.1.gbff --skip-modules interproscan,eggnog --cpu 8
+```
+
+What this launcher does:
+
+- pulls `ghcr.io/jaeyoonsung/dnmbsuite:v1.0.2` automatically when missing
+- mounts the output directory to `/data`
+- mounts `~/.dnmb-cache` to `/opt/dnmb/cache`
+- copies the input GenBank file into the output directory when needed
+- runs `DNMB::run_DNMB(clean_previous = TRUE)`
+
+## Direct Docker Usage
+
+If you want to use Docker directly without the shell launcher, the image also
+contains its own built-in auto-run entrypoint.
+
+Minimal folder-based usage:
+
+```bash
 docker run --rm \
   -v /path/to/workdir:/data \
   -v "$HOME/.dnmb-cache:/opt/dnmb/cache" \
@@ -48,37 +90,6 @@ docker run --rm \
 
 In single-file mode, DNMBsuite stages only that file, runs the analysis, and
 writes outputs back next to the original input file.
-
-If you want a wrapper that accepts a direct GenBank path, use:
-
-```bash
-./run-dnmb.sh /path/to/GCF_000143145.1.gbff
-```
-
-Run with a custom output directory:
-
-```bash
-./run-dnmb.sh /path/to/GCF_000143145.1.gbff /path/to/output-dir
-```
-
-Run with selected modules only:
-
-```bash
-./run-dnmb.sh /path/to/GCF_000143145.1.gbff --modules defensefinder,iselement,prophage
-```
-
-Run while disabling selected modules:
-
-```bash
-./run-dnmb.sh /path/to/GCF_000143145.1.gbff --skip-modules interproscan,eggnog --cpu 8
-```
-
-What this wrapper does:
-
-- mounts the output directory to `/data`
-- mounts `~/.dnmb-cache` to `/opt/dnmb/cache`
-- copies the input GenBank file into the output directory when needed
-- runs the same built-in container launcher
 
 Supported module names for `--modules` and `--skip-modules`:
 
