@@ -43,12 +43,12 @@ Expected behavior:
 
 ## Build
 
-Build from the latest `master` of the core repository:
+Build from the pinned core release `v1.0.2`:
 
 ```bash
 docker build \
-  --build-arg DNMB_REF=master \
-  -t ghcr.io/jaeyoonsung/dnmbsuite:latest .
+  --build-arg DNMB_REF=v1.0.2 \
+  -t ghcr.io/jaeyoonsung/dnmbsuite:v0.1 .
 ```
 
 Build from a fixed core commit or tag:
@@ -200,8 +200,8 @@ DNMB_REF
 Examples:
 
 ```bash
-docker build --build-arg DNMB_REF=master -t ghcr.io/jaeyoonsung/dnmbsuite:latest .
-docker build --build-arg DNMB_REF=v1.0.0 -t ghcr.io/jaeyoonsung/dnmbsuite:v1.0.0 .
+docker build --build-arg DNMB_REF=v1.0.2 -t ghcr.io/jaeyoonsung/dnmbsuite:v0.1 .
+docker build --build-arg DNMB_REF=v1.0.2 -t ghcr.io/jaeyoonsung/dnmbsuite:v0.1 .
 docker build --build-arg DNMB_REF=<commit-sha> -t ghcr.io/jaeyoonsung/dnmbsuite:dev .
 ```
 
@@ -219,6 +219,6 @@ Before first release:
 
 1. Push this repository to `JAEYOONSUNG/DNMBsuite`.
 2. Confirm Actions and Packages permissions are enabled.
-3. Optionally change the default `DNMB_REF` in the workflow from `master` to a tag or release branch policy.
+3. Optionally change the default `DNMB_REF` in the workflow from `v1.0.2` to a later core release tag.
 
 After that, pushes to `main` or tags matching `v*` will publish the image automatically.

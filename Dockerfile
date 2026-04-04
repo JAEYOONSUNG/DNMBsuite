@@ -4,7 +4,8 @@
 FROM --platform=linux/amd64 rocker/r-ver:4.4.1
 
 ARG DNMB_REPO=https://github.com/JAEYOONSUNG/DNMB.git
-ARG DNMB_REF=master
+ARG DNMB_REF=v1.0.2
+ARG DNMB_SOURCE=github
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV DNMB_CACHE_ROOT=/opt/dnmb/cache
@@ -75,10 +76,19 @@ RUN R -e ' \
 
 RUN R -e 'devtools::install_github("JAEYOONSUNG/DefenseViz", quiet = TRUE)'
 
-RUN git clone "${DNMB_REPO}" /tmp/DNMB \
-    && git -C /tmp/DNMB checkout "${DNMB_REF}" \
-    && R -e 'devtools::install("/tmp/DNMB", dependencies = FALSE)' \
-    && rm -rf /tmp/DNMB
+RUN /opt/biotools/bin/python -m pip install --no-cache-dir \
+    git+https://github.com/mdmparis/defense-finder.git
+
+COPY docker/local-dnmb-snapshot/ /tmp/DNMB-local/
+
+RUN if [ "${DNMB_SOURCE}" = "local" ]; then \
+      R -e 'devtools::install("/tmp/DNMB-local", dependencies = FALSE)'; \
+    else \
+      git clone "${DNMB_REPO}" /tmp/DNMB \
+      && git -C /tmp/DNMB checkout "${DNMB_REF}" \
+      && R -e 'devtools::install("/tmp/DNMB", dependencies = FALSE)'; \
+    fi \
+    && rm -rf /tmp/DNMB /tmp/DNMB-local
 
 RUN mkdir -p /data /results ${DNMB_CACHE_ROOT}
 

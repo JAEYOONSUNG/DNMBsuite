@@ -3,7 +3,7 @@ name: docker-publish
 on:
   push:
     branches:
-      - main
+      - master
     tags:
       - "v*"
   workflow_dispatch:
@@ -11,7 +11,7 @@ on:
       dnmb_ref:
         description: "DNMB core git ref to build"
         required: false
-        default: "master"
+        default: "v1.0.2"
 
 permissions:
   contents: read
@@ -34,7 +34,7 @@ jobs:
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             echo "value=${{ inputs.dnmb_ref }}" >> "$GITHUB_OUTPUT"
           else
-            echo "value=master" >> "$GITHUB_OUTPUT"
+            echo "value=v1.0.2" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Login to GHCR

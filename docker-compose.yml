@@ -6,7 +6,7 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        DNMB_REF: ${DNMB_REF:-master}
+        DNMB_REF: ${DNMB_REF:-v1.0.2}
     image: ghcr.io/jaeyoonsung/dnmbsuite:${IMAGE_TAG:-latest}
     container_name: dnmbsuite
     volumes:

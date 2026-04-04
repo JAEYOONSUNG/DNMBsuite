@@ -2,3 +2,5 @@
 .env
 data/
 results/
+docker/local-dnmb-snapshot/*
+!docker/local-dnmb-snapshot/.gitkeep

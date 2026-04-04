@@ -14,3 +14,10 @@ cache/
 # Archives / logs
 *.tar.gz
 *.log
+docker/local-dnmb-snapshot.backup-*/
+docker/local-dnmb-snapshot/DNMB_*.tar.gz
+docker/local-dnmb-snapshot/.ntm/
+docker/local-dnmb-snapshot/.claude/
+docker/local-dnmb-snapshot/results/
+docker/local-dnmb-snapshot/Rplots.pdf
+docker/local-dnmb-snapshot/gurobi.log
