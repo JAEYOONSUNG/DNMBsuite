@@ -80,18 +80,15 @@ RUN /opt/biotools/bin/python -m pip install --no-cache-dir \
     git+https://github.com/mdmparis/defense-finder.git
 
 COPY docker/local-dnmb-snapshot/ /tmp/DNMB-local/
-COPY docker/dnmb-overrides/ /tmp/dnmb-overrides/
 
 RUN if [ "${DNMB_SOURCE}" = "local" ]; then \
-      if [ -d /tmp/dnmb-overrides ]; then cp -R /tmp/dnmb-overrides/. /tmp/DNMB-local/; fi \
       R -e 'devtools::install("/tmp/DNMB-local", dependencies = FALSE)'; \
     else \
       git clone "${DNMB_REPO}" /tmp/DNMB \
       && git -C /tmp/DNMB checkout "${DNMB_REF}" \
-      && if [ -d /tmp/dnmb-overrides ]; then cp -R /tmp/dnmb-overrides/. /tmp/DNMB/; fi \
       && R -e 'devtools::install("/tmp/DNMB", dependencies = FALSE)'; \
     fi \
-    && rm -rf /tmp/DNMB /tmp/DNMB-local /tmp/dnmb-overrides
+    && rm -rf /tmp/DNMB /tmp/DNMB-local
 
 RUN mkdir -p /data /results ${DNMB_CACHE_ROOT}
 
