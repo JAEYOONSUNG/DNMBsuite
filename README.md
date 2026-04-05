@@ -28,7 +28,8 @@ docker pull ghcr.io/jaeyoonsung/dnmbsuite:latest
 Run from a folder that already contains one or more GenBank files:
 
 ```bash
-cd /path/to/folder/with/genbank
+cd [/path/to/folder/with/genbank]
+
 docker run --rm \
   -v "$PWD:/data" \
   -v "$HOME/.dnmb-cache:/opt/dnmb/cache" \
