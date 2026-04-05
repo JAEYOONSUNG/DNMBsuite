@@ -52,6 +52,7 @@ What this does:
 - mounts `~/.dnmb-cache` to `/opt/dnmb/cache`
 - detects `*.gb`, `*.gbk`, or `*.gbff` automatically in folder mode
 - writes outputs back into the same host folder
+- keeps raw InterProScan TSV outputs inside `dnmb_interproscan/`
 
 ## Optional Shell Launcher
 
