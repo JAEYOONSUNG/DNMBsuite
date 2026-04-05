@@ -13,6 +13,7 @@ Only one thing is required from the user:
 - installs the DNMB core package inside the container image
 - uses a shared host cache at `~/.dnmb-cache`
 - downloads module databases and tool assets on first use when needed
+- records module metadata in the shared cache so stale installs can be refreshed
 - reuses the shared cache on later runs
 
 ## Recommended Quick Start
