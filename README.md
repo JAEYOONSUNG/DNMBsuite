@@ -49,6 +49,28 @@ docker run --rm \
   /data/GCF_030369615.1.gbff
 ```
 
+Run selected modules only with direct Docker:
+
+```bash
+docker run --rm \
+  -e DNMB_MODULES=defensefinder,iselement,prophage \
+  -e DNMB_MODULE_CPU=8 \
+  -v "$PWD:/data" \
+  -v "$HOME/.dnmb-cache:/opt/dnmb/cache" \
+  ghcr.io/jaeyoonsung/dnmbsuite:latest
+```
+
+Run while disabling selected modules with direct Docker:
+
+```bash
+docker run --rm \
+  -e DNMB_SKIP_MODULES=interproscan,eggnog \
+  -e DNMB_MODULE_CPU=8 \
+  -v "$PWD:/data" \
+  -v "$HOME/.dnmb-cache:/opt/dnmb/cache" \
+  ghcr.io/jaeyoonsung/dnmbsuite:latest
+```
+
 What this does:
 
 - uses the working directory as `/data`
@@ -56,6 +78,7 @@ What this does:
 - detects `*.gb`, `*.gbk`, or `*.gbff` automatically in folder mode
 - writes outputs back into the same host folder
 - keeps raw InterProScan TSV outputs inside `dnmb_interproscan/`
+- lets you control module selection through `DNMB_MODULES`, `DNMB_SKIP_MODULES`, `DNMB_MODULE_CPU`, `DNMB_PROPHAGE_BACKEND`, and `DNMB_CLEAN_PREVIOUS`
 
 ## Optional Shell Launcher
 
