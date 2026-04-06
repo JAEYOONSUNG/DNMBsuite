@@ -2,6 +2,8 @@
 
 Docker wrapper repository for the `DNMB` core package.
 
+![image](https://github.com/user-attachments/assets/9723c00f-447c-4987-bc25-f36068bf64ab)
+
 ## What You Need To Provide
 
 Only one thing is required from the user:
