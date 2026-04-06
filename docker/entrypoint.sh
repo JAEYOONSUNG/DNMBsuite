@@ -1,31 +1,62 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-mkdir -p "${DNMB_CACHE_ROOT:-/opt/dnmb/cache}"
+if [ "${DNMB_ENTRYPOINT_SKIP_ROOT_SETUP:-0}" != "1" ]; then
+  mkdir -p "${DNMB_CACHE_ROOT:-/opt/dnmb/cache}"
 
-CLEAN_CACHE_ROOT="${DNMB_CACHE_ROOT:-/opt/dnmb/cache}/db_modules/clean/split100"
-if [ ! -x "$CLEAN_CACHE_ROOT/conda_env/bin/python" ] && [ -f /opt/dnmb-seed/clean/split100/conda_env.tar.gz ]; then
-  mkdir -p "$CLEAN_CACHE_ROOT"
-  tar -xzf /opt/dnmb-seed/clean/split100/conda_env.tar.gz -C "$CLEAN_CACHE_ROOT"
-fi
+  CLEAN_CACHE_ROOT="${DNMB_CACHE_ROOT:-/opt/dnmb/cache}/db_modules/clean/split100"
+  if [ ! -x "$CLEAN_CACHE_ROOT/conda_env/bin/python" ] && [ -f /opt/dnmb-seed/clean/split100/conda_env.tar.gz ]; then
+    mkdir -p "$CLEAN_CACHE_ROOT"
+    tar -xzf /opt/dnmb-seed/clean/split100/conda_env.tar.gz -C "$CLEAN_CACHE_ROOT"
+  fi
 
-if [ -x "$CLEAN_CACHE_ROOT/conda_env/bin/python" ] && [ -f "$CLEAN_CACHE_ROOT/CLEAN/app/build.py" ]; then
-  if ! "$CLEAN_CACHE_ROOT/conda_env/bin/python" -c "import CLEAN" >/dev/null 2>&1; then
-    (
-      cd "$CLEAN_CACHE_ROOT/CLEAN/app"
-      "$CLEAN_CACHE_ROOT/conda_env/bin/python" build.py install >/dev/null 2>&1 || true
-    )
+  if [ -x "$CLEAN_CACHE_ROOT/conda_env/bin/python" ] && [ -f "$CLEAN_CACHE_ROOT/CLEAN/app/build.py" ]; then
+    if ! "$CLEAN_CACHE_ROOT/conda_env/bin/python" -c "import CLEAN" >/dev/null 2>&1; then
+      (
+        cd "$CLEAN_CACHE_ROOT/CLEAN/app"
+        "$CLEAN_CACHE_ROOT/conda_env/bin/python" build.py install >/dev/null 2>&1 || true
+      )
+    fi
+  fi
+
+  EGGNOG_CACHE="${DNMB_CACHE_ROOT:-/opt/dnmb/cache}/db_modules/eggnog/data"
+  if [ -d "$EGGNOG_CACHE" ]; then
+    EMAPPER_DATA=$(python3 -c "import os,eggnogmapper;print(os.path.join(os.path.dirname(eggnogmapper.__file__),'data'))" 2>/dev/null || true)
+    if [ -n "$EMAPPER_DATA" ] && [ ! -L "$EMAPPER_DATA" ]; then
+      rm -rf "$EMAPPER_DATA" 2>/dev/null || true
+      ln -sf "$EGGNOG_CACHE" "$EMAPPER_DATA" 2>/dev/null || true
+    fi
   fi
 fi
 
-EGGNOG_CACHE="${DNMB_CACHE_ROOT:-/opt/dnmb/cache}/db_modules/eggnog/data"
-if [ -d "$EGGNOG_CACHE" ]; then
-  EMAPPER_DATA=$(python3 -c "import os,eggnogmapper;print(os.path.join(os.path.dirname(eggnogmapper.__file__),'data'))" 2>/dev/null || true)
-  if [ -n "$EMAPPER_DATA" ] && [ ! -L "$EMAPPER_DATA" ]; then
-    rm -rf "$EMAPPER_DATA" 2>/dev/null || true
-    ln -sf "$EGGNOG_CACHE" "$EMAPPER_DATA" 2>/dev/null || true
+maybe_drop_privileges() {
+  if [ "${DNMB_ENTRYPOINT_SKIP_ROOT_SETUP:-0}" = "1" ]; then
+    return 0
   fi
-fi
+  if [ "$(id -u)" != "0" ]; then
+    return 0
+  fi
+  if [ ! -d /data ]; then
+    return 0
+  fi
+  if ! command -v gosu >/dev/null 2>&1; then
+    return 0
+  fi
+
+  local target_uid target_gid
+  target_uid="$(stat -c '%u' /data 2>/dev/null || echo 0)"
+  target_gid="$(stat -c '%g' /data 2>/dev/null || echo 0)"
+
+  if [ -z "$target_uid" ] || [ -z "$target_gid" ]; then
+    return 0
+  fi
+  if [ "$target_uid" = "0" ] && [ "$target_gid" = "0" ]; then
+    return 0
+  fi
+
+  export DNMB_ENTRYPOINT_SKIP_ROOT_SETUP=1
+  exec gosu "${target_uid}:${target_gid}" "$0" "$@"
+}
 
 normalize_module_name() {
   local raw
@@ -212,6 +243,8 @@ run_dnmb_single_file() {
 run_dnmb_default() {
   run_dnmb_in_dir /data
 }
+
+maybe_drop_privileges "$@"
 
 if [ "$#" -eq 0 ]; then
   run_dnmb_default

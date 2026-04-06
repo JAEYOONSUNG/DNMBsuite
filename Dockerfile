@@ -18,7 +18,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libfontconfig1-dev libfreetype6-dev libpng-dev libtiff-dev libjpeg-dev \
     libharfbuzz-dev libfribidi-dev \
     zlib1g-dev libbz2-dev liblzma-dev libpcre2-dev libicu-dev libgit2-dev \
-    cmake pkg-config curl wget git procps ca-certificates locales \
+    cmake pkg-config curl wget git procps ca-certificates locales gosu \
     default-jdk \
     libwebp-dev \
     poppler-utils \
