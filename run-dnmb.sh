@@ -21,7 +21,8 @@ Options:
   --modules <list>          Comma-separated module list to enable.
                             Supported names:
                             dbcan, merops, clean, pazy, gapmind,
-                            defensefinder, rebasefinder, iselement,
+                            defensefinder, padloc, defensepredictor,
+                            rebasefinder, iselement,
                             prophage, eggnog, interproscan
                             Special values: all, none, core
   --skip-modules <list>     Comma-separated module list to disable.
@@ -55,6 +56,8 @@ normalize_module_name() {
     pazy) echo "pazy" ;;
     gapmind|gapmindaa|gapmindcarbon) echo "gapmind" ;;
     defensefinder|defense) echo "defensefinder" ;;
+    padloc) echo "padloc" ;;
+    defensepredictor|defense-predictor) echo "defensepredictor" ;;
     rebasefinder|rebase) echo "rebasefinder" ;;
     iselement|iselements|is) echo "iselement" ;;
     prophage) echo "prophage" ;;
@@ -85,6 +88,8 @@ MODULE_CLEAN=TRUE
 MODULE_PAZY=TRUE
 MODULE_GAPMIND=TRUE
 MODULE_DEFENSEFINDER=TRUE
+MODULE_PADLOC=TRUE
+MODULE_DEFENSEPREDICTOR=TRUE
 MODULE_REBASEFINDER=TRUE
 MODULE_ISELEMENT=TRUE
 MODULE_PROPHAGE=TRUE
@@ -99,6 +104,8 @@ set_all_modules() {
   MODULE_PAZY="$value"
   MODULE_GAPMIND="$value"
   MODULE_DEFENSEFINDER="$value"
+  MODULE_PADLOC="$value"
+  MODULE_DEFENSEPREDICTOR="$value"
   MODULE_REBASEFINDER="$value"
   MODULE_ISELEMENT="$value"
   MODULE_PROPHAGE="$value"
@@ -116,6 +123,8 @@ set_module_flag() {
     pazy) MODULE_PAZY="$value" ;;
     gapmind) MODULE_GAPMIND="$value" ;;
     defensefinder) MODULE_DEFENSEFINDER="$value" ;;
+    padloc) MODULE_PADLOC="$value" ;;
+    defensepredictor) MODULE_DEFENSEPREDICTOR="$value" ;;
     rebasefinder) MODULE_REBASEFINDER="$value" ;;
     iselement) MODULE_ISELEMENT="$value" ;;
     prophage) MODULE_PROPHAGE="$value" ;;
@@ -272,6 +281,8 @@ R_ARGS+=("module_CLEAN = ${MODULE_CLEAN}")
 R_ARGS+=("module_PAZy = ${MODULE_PAZY}")
 R_ARGS+=("module_GapMind = ${MODULE_GAPMIND}")
 R_ARGS+=("module_DefenseFinder = ${MODULE_DEFENSEFINDER}")
+R_ARGS+=("module_PADLOC = ${MODULE_PADLOC}")
+R_ARGS+=("module_DefensePredictor = ${MODULE_DEFENSEPREDICTOR}")
 R_ARGS+=("module_REBASEfinder = ${MODULE_REBASEFINDER}")
 R_ARGS+=("module_ISelement = ${MODULE_ISELEMENT}")
 R_ARGS+=("module_Prophage = ${MODULE_PROPHAGE}")

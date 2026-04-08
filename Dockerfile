@@ -9,6 +9,8 @@ ARG DNMB_SOURCE=github
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV DNMB_CACHE_ROOT=/opt/dnmb/cache
+ENV R_LIBS_SITE=/opt/biotools/lib/R/library
+ENV R_LIBS=/opt/biotools/lib/R/library
 ENV LANG=en_US.UTF-8
 ENV LC_ALL=en_US.UTF-8
 
@@ -33,7 +35,7 @@ RUN curl -fsSL https://github.com/conda-forge/miniforge/releases/latest/download
 RUN /opt/miniforge/bin/conda create -y -p /opt/biotools \
     -c bioconda -c conda-forge \
     python=3.12 \
-    hmmer blast prodigal diamond \
+    hmmer blast prodigal diamond padloc \
     eggnog-mapper \
     entrez-direct skani fastani \
     phispy \
@@ -68,13 +70,18 @@ RUN R -e ' \
       "dplyr", "plyr", "tidyr", "data.table", "tibble", "reshape2", \
       "readr", "openxlsx", "seqinr", "stringr", "jsonlite", "gtools", \
       "ggplot2", "cowplot", "gggenes", "ggrepel", "ggtext", "ggseqlogo", \
-      "ggforce", "gridExtra", "scales", "Peptides", "qdap", "circlize", \
+      "ggforce", "gridExtra", "scales", "Peptides", "circlize", "ggplotify", \
       "devtools", "testthat", "tidyverse", \
       "ggnewscale", "patchwork", "gridBase", "gtable", "colorspace" \
     ), repos = "https://cloud.r-project.org"); \
 '
+RUN export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64 \
+    && export LD_LIBRARY_PATH=/usr/lib/jvm/java-11-openjdk-amd64/lib/server:${LD_LIBRARY_PATH} \
+    && R CMD javareconf \
+    && R -e 'install.packages("rJava", repos = "https://cloud.r-project.org", configure.args = "--disable-jri")' \
+    && R -e 'install.packages("venneuler", repos = "https://cloud.r-project.org", Ncpus = 1)'
 
-RUN R -e 'devtools::install_github("JAEYOONSUNG/DefenseViz", quiet = TRUE)'
+RUN R -e 'pak::pkg_install("github::JAEYOONSUNG/DefenseViz")'
 
 RUN /opt/biotools/bin/python -m pip install --no-cache-dir \
     git+https://github.com/mdmparis/defense-finder.git

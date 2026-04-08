@@ -4,6 +4,19 @@ set -euo pipefail
 if [ "${DNMB_ENTRYPOINT_SKIP_ROOT_SETUP:-0}" != "1" ]; then
   mkdir -p "${DNMB_CACHE_ROOT:-/opt/dnmb/cache}"
 
+  if [ -z "${JAVA_HOME:-}" ] && [ -d "/usr/lib/jvm/java-11-openjdk-amd64" ]; then
+    export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
+  fi
+
+  if [ -d "${JAVA_HOME:-}/lib/server" ]; then
+    export LD_LIBRARY_PATH="${JAVA_HOME}/lib/server${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
+  fi
+
+  if [ -d "/opt/biotools/lib/R/library" ]; then
+    export R_LIBS_SITE="/opt/biotools/lib/R/library${R_LIBS_SITE:+:${R_LIBS_SITE}}"
+    export R_LIBS="/opt/biotools/lib/R/library${R_LIBS:+:${R_LIBS}}"
+  fi
+
   CLEAN_CACHE_ROOT="${DNMB_CACHE_ROOT:-/opt/dnmb/cache}/db_modules/clean/split100"
   if [ ! -x "$CLEAN_CACHE_ROOT/conda_env/bin/python" ] && [ -f /opt/dnmb-seed/clean/split100/conda_env.tar.gz ]; then
     mkdir -p "$CLEAN_CACHE_ROOT"
@@ -68,6 +81,8 @@ normalize_module_name() {
     pazy) echo "pazy" ;;
     gapmind|gapmindaa|gapmindcarbon) echo "gapmind" ;;
     defensefinder|defense) echo "defensefinder" ;;
+    padloc) echo "padloc" ;;
+    defensepredictor|defense-predictor) echo "defensepredictor" ;;
     rebasefinder|rebase) echo "rebasefinder" ;;
     iselement|iselements|is) echo "iselement" ;;
     prophage) echo "prophage" ;;
@@ -88,6 +103,8 @@ set_all_modules() {
   MODULE_PAZY="$value"
   MODULE_GAPMIND="$value"
   MODULE_DEFENSEFINDER="$value"
+  MODULE_PADLOC="$value"
+  MODULE_DEFENSEPREDICTOR="$value"
   MODULE_REBASEFINDER="$value"
   MODULE_ISELEMENT="$value"
   MODULE_PROPHAGE="$value"
@@ -105,6 +122,8 @@ set_module_flag() {
     pazy) MODULE_PAZY="$value" ;;
     gapmind) MODULE_GAPMIND="$value" ;;
     defensefinder) MODULE_DEFENSEFINDER="$value" ;;
+    padloc) MODULE_PADLOC="$value" ;;
+    defensepredictor) MODULE_DEFENSEPREDICTOR="$value" ;;
     rebasefinder) MODULE_REBASEFINDER="$value" ;;
     iselement) MODULE_ISELEMENT="$value" ;;
     prophage) MODULE_PROPHAGE="$value" ;;
@@ -139,6 +158,8 @@ build_r_arg_string() {
   MODULE_PAZY=TRUE
   MODULE_GAPMIND=TRUE
   MODULE_DEFENSEFINDER=TRUE
+  MODULE_PADLOC=TRUE
+  MODULE_DEFENSEPREDICTOR=TRUE
   MODULE_REBASEFINDER=TRUE
   MODULE_ISELEMENT=TRUE
   MODULE_PROPHAGE=TRUE
@@ -173,6 +194,8 @@ build_r_arg_string() {
   r_args+=("module_PAZy = ${MODULE_PAZY}")
   r_args+=("module_GapMind = ${MODULE_GAPMIND}")
   r_args+=("module_DefenseFinder = ${MODULE_DEFENSEFINDER}")
+  r_args+=("module_PADLOC = ${MODULE_PADLOC}")
+  r_args+=("module_DefensePredictor = ${MODULE_DEFENSEPREDICTOR}")
   r_args+=("module_REBASEfinder = ${MODULE_REBASEFINDER}")
   r_args+=("module_ISelement = ${MODULE_ISELEMENT}")
   r_args+=("module_Prophage = ${MODULE_PROPHAGE}")

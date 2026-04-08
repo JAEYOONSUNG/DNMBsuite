@@ -53,7 +53,7 @@ Run selected modules only with direct Docker:
 
 ```bash
 docker run --rm \
-  -e DNMB_MODULES=defensefinder,iselement,prophage \
+  -e DNMB_MODULES=defensefinder,padloc,defensepredictor,iselement,prophage \
   -e DNMB_MODULE_CPU=8 \
   -v "$PWD:/data" \
   -v "$HOME/.dnmb-cache:/opt/dnmb/cache" \
@@ -108,6 +108,7 @@ Run with selected modules only:
 
 ```bash
 bash run-dnmb.sh /path/to/GCF_030369615.1.gbff --modules defensefinder,iselement,prophage
+bash run-dnmb.sh /path/to/GCF_030369615.1.gbff --modules defensefinder,padloc,defensepredictor,iselement,prophage
 ```
 
 Run while disabling selected modules:
@@ -135,6 +136,8 @@ Supported module names for `--modules` and `--skip-modules`:
 - `pazy`
 - `gapmind`
 - `defensefinder`
+- `padloc`
+- `defensepredictor`
 - `rebasefinder`
 - `iselement`
 - `prophage`
@@ -197,6 +200,8 @@ data/
 ├── dnmb_interproscan/
 ├── dnmb_module_clean/
 ├── dnmb_module_defensefinder/
+├── dnmb_module_padloc/
+├── dnmb_module_defensepredictor/
 ├── dnmb_module_eggnog/
 ├── dnmb_module_gapmindaa/
 ├── dnmb_module_gapmindcarbon/
