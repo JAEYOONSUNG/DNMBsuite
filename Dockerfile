@@ -36,6 +36,7 @@ RUN /opt/miniforge/bin/conda create -y -p /opt/biotools \
     -c bioconda -c conda-forge \
     python=3.12 \
     hmmer blast prodigal diamond padloc \
+    dbcan \
     eggnog-mapper \
     entrez-direct skani fastani \
     phispy \
