@@ -51,7 +51,7 @@ RUN mkdir -p ${DNMB_CACHE_ROOT}/db_modules/clean/split100 \
        torch --index-url https://download.pytorch.org/whl/cpu \
     && ${DNMB_CACHE_ROOT}/db_modules/clean/split100/conda_env/bin/pip install --no-cache-dir \
        "fair-esm==2.0.0" \
-       "pandas>=1.4" \
+       "pandas>=1.4,<3" \
        "scikit-learn>=1.2" \
        "scipy>=1.7" \
        "matplotlib>=3.7" \
