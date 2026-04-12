@@ -310,5 +310,6 @@ R_EXPR="library(DNMB); setwd(\"/data\"); run_DNMB(${R_ARG_STRING})"
 docker run --rm \
   -v "$OUTPUT_ABS:/data" \
   -v "$CACHE_ROOT:/opt/dnmb/cache" \
+  --ulimit stack=67108864 \
   "$IMAGE" \
   Rscript -e "$R_EXPR"

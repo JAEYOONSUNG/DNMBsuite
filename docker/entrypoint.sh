@@ -1,6 +1,16 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Raise the C stack soft limit. DNMB's CAZy carbon plot (and some of
+# the other layout-heavy ggplot2/circlize chains) walks a deep helper
+# tree that blows the default 8 MB Linux stack with
+#   Error: C stack usage XXXXXXX is too close to the limit
+# Bumping to 64 MB gives a large safety margin without impacting
+# memory (each thread still grows on demand).
+if command -v ulimit >/dev/null 2>&1; then
+  ulimit -s 65536 2>/dev/null || true
+fi
+
 if [ "${DNMB_ENTRYPOINT_SKIP_ROOT_SETUP:-0}" != "1" ]; then
   mkdir -p "${DNMB_CACHE_ROOT:-/opt/dnmb/cache}"
 
