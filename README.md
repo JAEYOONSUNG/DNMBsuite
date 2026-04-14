@@ -130,19 +130,21 @@ writes outputs back next to the original input file.
 
 Supported module names for `--modules` and `--skip-modules`:
 
-- `dbcan`
-- `merops`
+
+- `interproscan`
+- `eggnog`
 - `clean`
-- `pazy`
-- `gapmind`
+- `dbcan`
+- `rebasefinder`
 - `defensefinder`
 - `padloc`
 - `defensepredictor`
-- `rebasefinder`
+- `merops`
+- `pazy`
+- `gapmind`
 - `iselement`
 - `prophage`
-- `eggnog`
-- `interproscan`
+
 
 Special values for `--modules`:
 
