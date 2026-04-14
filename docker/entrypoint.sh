@@ -27,6 +27,16 @@ if [ "${DNMB_ENTRYPOINT_SKIP_ROOT_SETUP:-0}" != "1" ]; then
     export R_LIBS="/opt/biotools/lib/R/library${R_LIBS:+:${R_LIBS}}"
   fi
 
+  # Auto-update DNMB if GitHub master is ahead of the installed version
+  if command -v git >/dev/null 2>&1 && command -v Rscript >/dev/null 2>&1; then
+    _installed_sha=$(Rscript -e 'cat(as.character(utils::packageDescription("DNMB")$GithubSHA1))' 2>/dev/null || echo "")
+    _remote_sha=$(git ls-remote https://github.com/JAEYOONSUNG/DNMB.git refs/heads/master 2>/dev/null | cut -f1 | head -c 40 || echo "")
+    if [ -n "$_remote_sha" ] && [ -n "$_installed_sha" ] && [ "$_remote_sha" != "$_installed_sha" ]; then
+      echo "[DNMBsuite] DNMB update available (installed: ${_installed_sha:0:7}, remote: ${_remote_sha:0:7}). Updating..."
+      Rscript -e 'pak::pkg_install("JAEYOONSUNG/DNMB", lib = .libPaths()[1])' 2>&1 | tail -3
+    fi
+  fi
+
   CLEAN_CACHE_ROOT="${DNMB_CACHE_ROOT:-/opt/dnmb/cache}/db_modules/clean/split100"
   if [ ! -x "$CLEAN_CACHE_ROOT/conda_env/bin/python" ] && [ -f /opt/dnmb-seed/clean/split100/conda_env.tar.gz ]; then
     mkdir -p "$CLEAN_CACHE_ROOT"
