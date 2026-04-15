@@ -117,6 +117,12 @@ Run while disabling selected modules:
 bash run-dnmb.sh /path/to/GCF_030369615.1.gbff --skip-modules interproscan,eggnog --cpu 8
 ```
 
+Opt in to a startup DNMB refresh from GitHub:
+
+```bash
+bash run-dnmb.sh /path/to/GCF_030369615.1.gbff --dnmb-auto-update --dnmb-auto-update-branch master
+```
+
 What this launcher does:
 
 - pulls `ghcr.io/jaeyoonsung/dnmbsuite:latest` automatically when missing
@@ -124,6 +130,7 @@ What this launcher does:
 - mounts `~/.dnmb-cache` to `/opt/dnmb/cache`
 - copies the input GenBank file into the output directory when needed
 - runs the same built-in container launcher
+- keeps the bundled DNMB package fixed unless you explicitly opt in to `DNMB_AUTO_UPDATE=1`
 
 In single-file mode, DNMBsuite stages only that file, runs the analysis, and
 writes outputs back next to the original input file.
@@ -220,6 +227,7 @@ data/
 - the first run can take a long time because module assets may need to be downloaded into `~/.dnmb-cache`
 - later runs are much faster because DNMB reuses the shared cache and matching previous outputs
 - `clean_previous = TRUE` removes stale run artifacts but preserves matching reusable outputs when the input genome has not changed
+- DNMB core auto-update is disabled by default so a published image stays reproducible; opt in only when you intentionally want the container to track the latest GitHub branch
 
 ## Build
 
@@ -253,6 +261,8 @@ If the package is private, authenticate first:
 echo <GITHUB_TOKEN> | docker login ghcr.io -u <github-user> --password-stdin
 ```
 
+For release or manuscript runs, prefer a fixed image tag or digest and keep `DNMB_AUTO_UPDATE=0`.
+
 ## Usage
 
 ### Interactive R
@@ -285,6 +295,7 @@ docker compose up
 docker run --rm \
   -e DNMB_MODULES=defensefinder,iselement,prophage \
   -e DNMB_MODULE_CPU=8 \
+  -e DNMB_AUTO_UPDATE=0 \
   -v /path/to/workdir:/data \
   -v "$HOME/.dnmb-cache:/opt/dnmb/cache" \
   ghcr.io/jaeyoonsung/dnmbsuite:latest
@@ -296,8 +307,9 @@ docker run --rm \
 - The first run can take a long time because module assets may need to be downloaded into `~/.dnmb-cache`.
 - Later runs should be much faster because DNMB reuses the shared cache and matching previous outputs.
 - If you want a clean rerun but still keep reusable outputs, keep `clean_previous = TRUE`. The current DNMB logic preserves matching cached module and external annotation outputs when the input genome has not changed.
+- DNMB auto-update is off by default. Leave it off for reproducible runs; enable it only when you explicitly want to refresh the bundled DNMB package from GitHub.
 - Advanced launcher environment variables:
-  `DNMB_MODULES`, `DNMB_SKIP_MODULES`, `DNMB_MODULE_CPU`, `DNMB_PROPHAGE_BACKEND`, `DNMB_CLEAN_PREVIOUS`
+  `DNMB_MODULES`, `DNMB_SKIP_MODULES`, `DNMB_MODULE_CPU`, `DNMB_PROPHAGE_BACKEND`, `DNMB_CLEAN_PREVIOUS`, `DNMB_AUTO_UPDATE`, `DNMB_AUTO_UPDATE_BRANCH`
 
 ## Compose
 
@@ -324,6 +336,12 @@ Use a different core ref only if you explicitly want to override the default:
 
 ```bash
 DNMB_REF=<dnmb-git-ref> docker compose build
+```
+
+Opt in to DNMB startup refresh only when desired:
+
+```bash
+DNMB_AUTO_UPDATE=1 DNMB_AUTO_UPDATE_BRANCH=master docker compose up
 ```
 
 Use a different output tag locally:
@@ -361,13 +379,15 @@ This means:
 https://github.com/JAEYOONSUNG/DNMB.git
 ```
 
-By default DNMBsuite tracks the latest core code on:
+By default DNMBsuite installs the DNMB core from this repository at image build time using:
 
 ```text
 master
 ```
 
-If you need to override that default, use `DNMB_REF`:
+Container startup does not mutate that installed core unless you explicitly set `DNMB_AUTO_UPDATE=1`.
+
+If you need to override the build-time core ref, use `DNMB_REF`:
 
 ```bash
 docker build --build-arg DNMB_REF=master -t ghcr.io/jaeyoonsung/dnmbsuite:latest .

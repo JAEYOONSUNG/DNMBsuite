@@ -11,6 +11,7 @@ Examples:
   ./run-dnmb.sh /path/to/genome.gbk /path/to/output-dir
   ./run-dnmb.sh /path/to/genome.gbff --modules defensefinder,iselement,prophage
   ./run-dnmb.sh /path/to/genome.gbff --skip-modules interproscan,eggnog --cpu 8
+  ./run-dnmb.sh /path/to/genome.gbff --dnmb-auto-update --dnmb-auto-update-branch master
 
 Behavior:
   - If output_dir is omitted, DNMB writes results next to the input GenBank file.
@@ -29,6 +30,9 @@ Options:
   --cpu <n>                 Thread count passed to run_DNMB().
   --prophage-backend <x>    Prophage backend: phispy, virsorter2, or pide.
   --keep-previous           Set clean_previous = FALSE.
+  --dnmb-auto-update        Opt in to DNMB package auto-update at container startup.
+  --dnmb-auto-update-branch <name>
+                            Git branch to follow when auto-update is enabled.
   --image <image>           Override the Docker image to run.
 EOF
 }
@@ -140,6 +144,8 @@ SKIP_MODULES=""
 CPU_SPEC=""
 PROPHAGE_BACKEND=""
 CLEAN_PREVIOUS="TRUE"
+DNMB_AUTO_UPDATE="${DNMB_AUTO_UPDATE:-0}"
+DNMB_AUTO_UPDATE_BRANCH="${DNMB_AUTO_UPDATE_BRANCH:-master}"
 IMAGE="${DNMBSUITE_IMAGE:-ghcr.io/jaeyoonsung/dnmbsuite:latest}"
 
 while [ "$#" -gt 0 ]; do
@@ -167,6 +173,14 @@ while [ "$#" -gt 0 ]; do
     --keep-previous)
       CLEAN_PREVIOUS="FALSE"
       shift
+      ;;
+    --dnmb-auto-update)
+      DNMB_AUTO_UPDATE="1"
+      shift
+      ;;
+    --dnmb-auto-update-branch)
+      DNMB_AUTO_UPDATE_BRANCH="${2:-}"
+      shift 2
       ;;
     --image)
       IMAGE="${2:-}"
@@ -308,6 +322,8 @@ done
 R_EXPR="library(DNMB); setwd(\"/data\"); run_DNMB(${R_ARG_STRING})"
 
 docker run --rm \
+  -e "DNMB_AUTO_UPDATE=$DNMB_AUTO_UPDATE" \
+  -e "DNMB_AUTO_UPDATE_BRANCH=$DNMB_AUTO_UPDATE_BRANCH" \
   -v "$OUTPUT_ABS:/data" \
   -v "$CACHE_ROOT:/opt/dnmb/cache" \
   --ulimit stack=67108864 \

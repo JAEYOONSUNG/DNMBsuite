@@ -11,6 +11,25 @@ if command -v ulimit >/dev/null 2>&1; then
   ulimit -s 65536 2>/dev/null || true
 fi
 
+dnmb_truthy() {
+  case "${1:-}" in
+    1|true|TRUE|yes|YES|on|ON)
+      return 0
+      ;;
+    *)
+      return 1
+      ;;
+  esac
+}
+
+dnmb_rscript() {
+  env -u R_HOME Rscript --vanilla "$@"
+}
+
+dnmb_installed_sha() {
+  dnmb_rscript -e 'desc <- suppressWarnings(utils::packageDescription("DNMB")); sha <- desc[["GithubSHA1"]]; if (is.null(sha) || is.na(sha)) sha <- ""; cat(sha)' 2>/dev/null | tr -d '\r\n'
+}
+
 if [ "${DNMB_ENTRYPOINT_SKIP_ROOT_SETUP:-0}" != "1" ]; then
   mkdir -p "${DNMB_CACHE_ROOT:-/opt/dnmb/cache}"
 
@@ -27,13 +46,33 @@ if [ "${DNMB_ENTRYPOINT_SKIP_ROOT_SETUP:-0}" != "1" ]; then
     export R_LIBS="/opt/biotools/lib/R/library${R_LIBS:+:${R_LIBS}}"
   fi
 
-  # Auto-update DNMB if GitHub master is ahead of the installed version
+  # DNMB auto-update is opt-in so release images stay reproducible by default.
   if command -v git >/dev/null 2>&1 && command -v Rscript >/dev/null 2>&1; then
-    _installed_sha=$(Rscript -e 'cat(as.character(utils::packageDescription("DNMB")$GithubSHA1))' 2>/dev/null || echo "")
-    _remote_sha=$(git ls-remote https://github.com/JAEYOONSUNG/DNMB.git refs/heads/master 2>/dev/null | cut -f1 | head -c 40 || echo "")
-    if [ -n "$_remote_sha" ] && [ -n "$_installed_sha" ] && [ "$_remote_sha" != "$_installed_sha" ]; then
-      echo "[DNMBsuite] DNMB update available (installed: ${_installed_sha:0:7}, remote: ${_remote_sha:0:7}). Updating..."
-      Rscript -e 'pak::pkg_install("JAEYOONSUNG/DNMB", lib = .libPaths()[1])' 2>&1 | tail -3
+    _installed_sha="$(dnmb_installed_sha || true)"
+    if dnmb_truthy "${DNMB_AUTO_UPDATE:-0}"; then
+      _update_branch="${DNMB_AUTO_UPDATE_BRANCH:-master}"
+      _remote_sha="$(git ls-remote https://github.com/JAEYOONSUNG/DNMB.git "refs/heads/${_update_branch}" 2>/dev/null | cut -f1 | head -c 40 || echo "")"
+      _installed_sha_short="${_installed_sha:0:7}"
+      if [ -z "$_installed_sha_short" ]; then
+        _installed_sha_short="unknown"
+      fi
+      if [ -n "$_remote_sha" ] && { [ -z "$_installed_sha" ] || [ "$_remote_sha" != "$_installed_sha" ]; }; then
+        echo "[DNMBsuite] Auto-updating DNMB from ${_update_branch} (installed: ${_installed_sha_short}, remote: ${_remote_sha:0:7})..."
+        if dnmb_rscript -e 'branch <- Sys.getenv("DNMB_AUTO_UPDATE_BRANCH", unset = "master"); pak::pkg_install(sprintf("github::JAEYOONSUNG/DNMB@%s", branch), lib = .libPaths()[1])' 2>&1 | tail -3; then
+          _updated_sha="$(dnmb_installed_sha || true)"
+          if [ -n "$_updated_sha" ]; then
+            echo "[DNMBsuite] DNMB auto-update complete (current: ${_updated_sha:0:7})."
+          else
+            echo "[DNMBsuite] DNMB auto-update completed."
+          fi
+        else
+          echo "[DNMBsuite] DNMB auto-update failed; continuing with installed package." >&2
+        fi
+      elif [ -n "$_remote_sha" ] && [ -n "$_installed_sha" ]; then
+        echo "[DNMBsuite] DNMB auto-update enabled; installed core already matches ${_update_branch} (${_installed_sha:0:7})."
+      else
+        echo "[DNMBsuite] DNMB auto-update enabled but installed or remote SHA could not be resolved; continuing with installed package." >&2
+      fi
     fi
   fi
 
