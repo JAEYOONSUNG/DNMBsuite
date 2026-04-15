@@ -28,12 +28,20 @@ Pull the image:
 docker pull ghcr.io/jaeyoonsung/dnmbsuite:latest
 ```
 
+On Linux, create the shared cache first so the container can reuse it without
+leaving root-owned files behind:
+
+```bash
+mkdir -p "$HOME/.dnmb-cache"
+```
+
 Run from a folder that already contains one or more GenBank files:
 
 ```bash
 cd [/path/to/folder/with/genbank]
 
 docker run --rm \
+  --user "$(id -u):$(id -g)" \
   -v "$PWD:/data" \
   -v "$HOME/.dnmb-cache:/opt/dnmb/cache" \
   ghcr.io/jaeyoonsung/dnmbsuite:latest
@@ -43,6 +51,7 @@ Run a single GenBank file explicitly:
 
 ```bash
 docker run --rm \
+  --user "$(id -u):$(id -g)" \
   -v /path/to/parent-dir:/data \
   -v "$HOME/.dnmb-cache:/opt/dnmb/cache" \
   ghcr.io/jaeyoonsung/dnmbsuite:latest \
@@ -53,6 +62,7 @@ Run selected modules only with direct Docker:
 
 ```bash
 docker run --rm \
+  --user "$(id -u):$(id -g)" \
   -e DNMB_MODULES=defensefinder,padloc,defensepredictor,iselement,prophage \
   -e DNMB_MODULE_CPU=8 \
   -v "$PWD:/data" \
@@ -64,6 +74,7 @@ Run while disabling selected modules with direct Docker:
 
 ```bash
 docker run --rm \
+  --user "$(id -u):$(id -g)" \
   -e DNMB_SKIP_MODULES=interproscan,eggnog \
   -e DNMB_MODULE_CPU=8 \
   -v "$PWD:/data" \
@@ -78,6 +89,7 @@ What this does:
 - detects `*.gb`, `*.gbk`, or `*.gbff` automatically in folder mode
 - writes outputs back into the same host folder
 - keeps raw InterProScan TSV outputs inside `dnmb_interproscan/`
+- on Linux, runs as your current host UID/GID in the direct `docker run` examples so output and cache files stay writable by you
 - lets you control module selection through `DNMB_MODULES`, `DNMB_SKIP_MODULES`, `DNMB_MODULE_CPU`, `DNMB_PROPHAGE_BACKEND`, and `DNMB_CLEAN_PREVIOUS`
 
 ## Optional Shell Launcher
@@ -293,6 +305,7 @@ docker compose up
 
 ```bash
 docker run --rm \
+  --user "$(id -u):$(id -g)" \
   -e DNMB_MODULES=defensefinder,iselement,prophage \
   -e DNMB_MODULE_CPU=8 \
   -e DNMB_AUTO_UPDATE=0 \
@@ -308,6 +321,8 @@ docker run --rm \
 - Later runs should be much faster because DNMB reuses the shared cache and matching previous outputs.
 - If you want a clean rerun but still keep reusable outputs, keep `clean_previous = TRUE`. The current DNMB logic preserves matching cached module and external annotation outputs when the input genome has not changed.
 - DNMB auto-update is off by default. Leave it off for reproducible runs; enable it only when you explicitly want to refresh the bundled DNMB package from GitHub.
+- If older Linux runs left root-owned files in `~/.dnmb-cache`, fix them before rerunning with:
+  `sudo chown -R "$(id -u):$(id -g)" "$HOME/.dnmb-cache"`
 - Advanced launcher environment variables:
   `DNMB_MODULES`, `DNMB_SKIP_MODULES`, `DNMB_MODULE_CPU`, `DNMB_PROPHAGE_BACKEND`, `DNMB_CLEAN_PREVIOUS`, `DNMB_AUTO_UPDATE`, `DNMB_AUTO_UPDATE_BRANCH`
 
