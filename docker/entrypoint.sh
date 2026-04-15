@@ -30,6 +30,41 @@ dnmb_installed_sha() {
   dnmb_rscript -e 'desc <- suppressWarnings(utils::packageDescription("DNMB")); sha <- desc[["GithubSHA1"]]; if (is.null(sha) || is.na(sha)) sha <- ""; cat(sha)' 2>/dev/null | tr -d '\r\n'
 }
 
+dnmb_prepare_runtime_env() {
+  local runtime_uid runtime_gid runtime_home runtime_cache
+
+  runtime_uid="$(id -u)"
+  runtime_gid="$(id -g)"
+
+  if [ "$runtime_uid" = "0" ] && [ -d /data ]; then
+    runtime_uid="$(stat -c '%u' /data 2>/dev/null || echo 0)"
+    runtime_gid="$(stat -c '%g' /data 2>/dev/null || echo 0)"
+    if [ -n "$runtime_uid" ] && [ "$runtime_uid" != "0" ]; then
+      runtime_home="${DNMB_RUNTIME_HOME:-/tmp/dnmb-home-${runtime_uid}}"
+      runtime_cache="${XDG_CACHE_HOME:-${runtime_home}/.cache}"
+      export HOME="$runtime_home"
+      export XDG_CACHE_HOME="$runtime_cache"
+      export FONTCONFIG_PATH="${FONTCONFIG_PATH:-/etc/fonts}"
+      mkdir -p "$runtime_cache/fontconfig" "$runtime_home" 2>/dev/null || true
+      chown -R "${runtime_uid}:${runtime_gid}" "$runtime_home" 2>/dev/null || true
+      chmod 700 "$runtime_home" 2>/dev/null || true
+      return 0
+    fi
+  fi
+
+  if [ -z "${HOME:-}" ] || [ ! -w "${HOME:-/nonexistent}" ]; then
+    runtime_home="${DNMB_RUNTIME_HOME:-/tmp/dnmb-home-$(id -u)}"
+    export HOME="$runtime_home"
+  else
+    runtime_home="$HOME"
+  fi
+
+  runtime_cache="${XDG_CACHE_HOME:-${runtime_home}/.cache}"
+  export XDG_CACHE_HOME="$runtime_cache"
+  export FONTCONFIG_PATH="${FONTCONFIG_PATH:-/etc/fonts}"
+  mkdir -p "$runtime_cache/fontconfig" "$runtime_home" 2>/dev/null || true
+}
+
 if [ "${DNMB_ENTRYPOINT_SKIP_ROOT_SETUP:-0}" != "1" ]; then
   mkdir -p "${DNMB_CACHE_ROOT:-/opt/dnmb/cache}"
 
@@ -40,6 +75,8 @@ if [ "${DNMB_ENTRYPOINT_SKIP_ROOT_SETUP:-0}" != "1" ]; then
   if [ -d "${JAVA_HOME:-}/lib/server" ]; then
     export LD_LIBRARY_PATH="${JAVA_HOME}/lib/server${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
   fi
+
+  dnmb_prepare_runtime_env
 
   if [ -d "/opt/biotools/lib/R/library" ]; then
     export R_LIBS_SITE="/opt/biotools/lib/R/library${R_LIBS_SITE:+:${R_LIBS_SITE}}"
@@ -100,6 +137,8 @@ if [ "${DNMB_ENTRYPOINT_SKIP_ROOT_SETUP:-0}" != "1" ]; then
     fi
   fi
 fi
+
+dnmb_prepare_runtime_env
 
 maybe_drop_privileges() {
   if [ "${DNMB_ENTRYPOINT_SKIP_ROOT_SETUP:-0}" = "1" ]; then
