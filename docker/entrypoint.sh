@@ -26,6 +26,26 @@ dnmb_rscript() {
   env -u R_HOME Rscript --vanilla "$@"
 }
 
+dnmb_cleanup_outputs() {
+  local output_dir="$1"
+
+  rm -rf "$output_dir/temp" 2>/dev/null || true
+  rm -f "$output_dir/Rplots.pdf" "$output_dir/Rplot.pdf" 2>/dev/null || true
+}
+
+dnmb_run_pipeline() {
+  local workdir="$1"
+  local arg_string="$2"
+
+  cd "$workdir"
+  if dnmb_rscript -e "library(DNMB); run_DNMB(${arg_string})"; then
+    dnmb_cleanup_outputs "$workdir"
+    return 0
+  else
+    return $?
+  fi
+}
+
 dnmb_installed_sha() {
   dnmb_rscript -e 'desc <- suppressWarnings(utils::packageDescription("DNMB")); sha <- desc[["GithubSHA1"]]; if (is.null(sha) || is.na(sha)) sha <- ""; cat(sha)' 2>/dev/null | tr -d '\r\n'
 }
@@ -330,8 +350,7 @@ run_dnmb_in_dir() {
     exit 1
   fi
   arg_string="$(build_r_arg_string)"
-  cd "$workdir"
-  exec Rscript -e "library(DNMB); run_DNMB(${arg_string})"
+  dnmb_run_pipeline "$workdir" "$arg_string"
 }
 
 copy_tree_contents() {
@@ -356,9 +375,9 @@ run_dnmb_single_file() {
   cp -f "$input_file" "$stage_dir/$(basename "$input_file")"
   local arg_string
   arg_string="$(build_r_arg_string)"
-  cd "$stage_dir"
-  Rscript -e "library(DNMB); run_DNMB(${arg_string})"
+  dnmb_run_pipeline "$stage_dir" "$arg_string"
   copy_tree_contents "$stage_dir" "$output_dir"
+  dnmb_cleanup_outputs "$output_dir"
 }
 
 run_dnmb_default() {

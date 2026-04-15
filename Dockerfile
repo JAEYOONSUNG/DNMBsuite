@@ -98,7 +98,7 @@ RUN if [ "${DNMB_SOURCE}" = "local" ]; then \
     fi \
     && rm -rf /tmp/DNMB /tmp/DNMB-local
 
-RUN mkdir -p /data /results ${DNMB_CACHE_ROOT}
+RUN mkdir -p /data /results ${DNMB_CACHE_ROOT} /opt/biotools/data /opt/biotools/test
 
 WORKDIR /data
 

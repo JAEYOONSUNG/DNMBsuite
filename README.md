@@ -90,6 +90,7 @@ What this does:
 - writes outputs back into the same host folder
 - keeps raw InterProScan TSV outputs inside `dnmb_interproscan/`
 - on Linux, runs as your current host UID/GID in the direct `docker run` examples so output and cache files stay writable by you
+- on arm64 hosts, add `--platform linux/amd64` to the direct `docker run` command because the published image is currently `amd64`
 - lets you control module selection through `DNMB_MODULES`, `DNMB_SKIP_MODULES`, `DNMB_MODULE_CPU`, `DNMB_PROPHAGE_BACKEND`, and `DNMB_CLEAN_PREVIOUS`
 
 ## Optional Shell Launcher
@@ -323,6 +324,10 @@ docker run --rm \
 - DNMB auto-update is off by default. Leave it off for reproducible runs; enable it only when you explicitly want to refresh the bundled DNMB package from GitHub.
 - If older Linux runs left root-owned files in `~/.dnmb-cache`, fix them before rerunning with:
   `sudo chown -R "$(id -u):$(id -g)" "$HOME/.dnmb-cache"`
+- If an older image fails only in PADLOC with `mkdir: cannot create directory '/opt/biotools/bin/../data': Permission denied`, either pull a rebuilt image from this repo or add:
+  `-v "$HOME/.dnmb-cache/padloc-bootstrap:/opt/biotools/data"`
+  to the direct `docker run` command after creating that host folder once with:
+  `mkdir -p "$HOME/.dnmb-cache/padloc-bootstrap"`
 - Advanced launcher environment variables:
   `DNMB_MODULES`, `DNMB_SKIP_MODULES`, `DNMB_MODULE_CPU`, `DNMB_PROPHAGE_BACKEND`, `DNMB_CLEAN_PREVIOUS`, `DNMB_AUTO_UPDATE`, `DNMB_AUTO_UPDATE_BRANCH`
 

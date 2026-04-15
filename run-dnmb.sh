@@ -42,6 +42,13 @@ if ! command -v docker >/dev/null 2>&1; then
   exit 1
 fi
 
+cleanup_output_dir() {
+  local output_dir="$1"
+
+  rm -rf "$output_dir/temp" 2>/dev/null || true
+  rm -f "$output_dir/Rplots.pdf" "$output_dir/Rplot.pdf" 2>/dev/null || true
+}
+
 ensure_image() {
   local image="$1"
   if ! docker image inspect "$image" >/dev/null 2>&1; then
@@ -321,11 +328,15 @@ done
 
 R_EXPR="library(DNMB); setwd(\"/data\"); run_DNMB(${R_ARG_STRING})"
 
-docker run --rm \
+if docker run --rm \
   -e "DNMB_AUTO_UPDATE=$DNMB_AUTO_UPDATE" \
   -e "DNMB_AUTO_UPDATE_BRANCH=$DNMB_AUTO_UPDATE_BRANCH" \
   -v "$OUTPUT_ABS:/data" \
   -v "$CACHE_ROOT:/opt/dnmb/cache" \
   --ulimit stack=67108864 \
   "$IMAGE" \
-  Rscript -e "$R_EXPR"
+  env -u R_HOME Rscript --vanilla -e "$R_EXPR"; then
+  cleanup_output_dir "$OUTPUT_ABS"
+else
+  exit $?
+fi
