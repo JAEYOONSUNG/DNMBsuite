@@ -37,6 +37,8 @@ RUN curl -fsSL https://github.com/conda-forge/miniforge/releases/latest/download
 RUN /opt/miniforge/bin/conda create -y -p /opt/biotools \
     -c bioconda -c conda-forge \
     python=3.12 \
+    bioconductor-biostrings \
+    bioconductor-complexheatmap \
     hmmer blast prodigal diamond padloc \
     dbcan \
     eggnog-mapper \
@@ -67,9 +69,7 @@ RUN rm -rf /opt/miniforge
 
 RUN R -e ' \
     options(Ncpus = parallel::detectCores()); \
-    install.packages("BiocManager", repos = "https://cloud.r-project.org"); \
     install.packages("remotes", repos = "https://cloud.r-project.org"); \
-    BiocManager::install(c("Biostrings", "ComplexHeatmap"), ask = FALSE, update = FALSE); \
     install.packages(c( \
       "dplyr", "plyr", "tidyr", "data.table", "tibble", "reshape2", \
       "readr", "openxlsx", "seqinr", "stringr", "jsonlite", "gtools", \
