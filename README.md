@@ -1,8 +1,7 @@
 # DNMBsuite
 
 Docker wrapper repository for the `DNMB` core package.
-
-![image](https://github.com/user-attachments/assets/9723c00f-447c-4987-bc25-f36068bf64ab)
+<img width="3687" height="2960" alt="DNMB" src="https://github.com/user-attachments/assets/04288552-cd42-4d40-afb1-4bb0607f5bd6" />
 
 ## What You Need To Provide
 
