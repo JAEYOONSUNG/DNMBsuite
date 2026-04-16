@@ -14,7 +14,8 @@ ENV R_LIBS=/opt/biotools/lib/R/library
 ENV LANG=en_US.UTF-8
 ENV LC_ALL=en_US.UTF-8
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN apt-get -o Acquire::Retries=5 update \
+    && apt-get -o Acquire::Retries=5 install -y --fix-missing --no-install-recommends \
     build-essential \
     libcurl4-openssl-dev libssl-dev libxml2-dev \
     libfontconfig1-dev libfreetype6-dev libpng-dev libtiff-dev libjpeg-dev \
