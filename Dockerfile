@@ -82,7 +82,7 @@ RUN export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64 \
     && R -e 'install.packages("rJava", repos = "https://cloud.r-project.org", configure.args = "--disable-jri")' \
     && R -e 'install.packages("venneuler", repos = "https://cloud.r-project.org", Ncpus = 1)'
 
-RUN R -e 'pak::pkg_install("github::JAEYOONSUNG/DefenseViz")'
+RUN R -e 'devtools::install_github("JAEYOONSUNG/DefenseViz", dependencies = FALSE)'
 
 RUN /opt/biotools/bin/python -m pip install --no-cache-dir \
     git+https://github.com/mdmparis/defense-finder.git
