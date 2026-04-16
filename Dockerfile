@@ -66,13 +66,14 @@ RUN rm -rf /opt/miniforge
 RUN R -e ' \
     options(Ncpus = parallel::detectCores()); \
     install.packages("BiocManager", repos = "https://cloud.r-project.org"); \
+    install.packages("remotes", repos = "https://cloud.r-project.org"); \
     BiocManager::install(c("Biostrings", "ComplexHeatmap"), ask = FALSE, update = FALSE); \
     install.packages(c( \
       "dplyr", "plyr", "tidyr", "data.table", "tibble", "reshape2", \
       "readr", "openxlsx", "seqinr", "stringr", "jsonlite", "gtools", \
       "ggplot2", "cowplot", "gggenes", "ggrepel", "ggtext", "ggseqlogo", \
       "ggforce", "gridExtra", "scales", "Peptides", "circlize", "ggplotify", \
-      "devtools", "testthat", "tidyverse", \
+      "testthat", "tidyverse", \
       "ggnewscale", "patchwork", "gridBase", "gtable", "colorspace" \
     ), repos = "https://cloud.r-project.org"); \
 '
@@ -82,7 +83,7 @@ RUN export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64 \
     && R -e 'install.packages("rJava", repos = "https://cloud.r-project.org", configure.args = "--disable-jri")' \
     && R -e 'install.packages("venneuler", repos = "https://cloud.r-project.org", Ncpus = 1)'
 
-RUN R -e 'devtools::install_github("JAEYOONSUNG/DefenseViz", dependencies = FALSE)'
+RUN R -e 'remotes::install_github("JAEYOONSUNG/DefenseViz", dependencies = FALSE, upgrade = "never")'
 
 RUN /opt/biotools/bin/python -m pip install --no-cache-dir \
     git+https://github.com/mdmparis/defense-finder.git
@@ -90,11 +91,11 @@ RUN /opt/biotools/bin/python -m pip install --no-cache-dir \
 COPY docker/local-dnmb-snapshot/ /tmp/DNMB-local/
 
 RUN if [ "${DNMB_SOURCE}" = "local" ]; then \
-      R -e 'devtools::install("/tmp/DNMB-local", dependencies = FALSE)'; \
+      R -e 'remotes::install_local("/tmp/DNMB-local", dependencies = FALSE, upgrade = "never")'; \
     else \
       git clone "${DNMB_REPO}" /tmp/DNMB \
       && git -C /tmp/DNMB checkout "${DNMB_REF}" \
-      && R -e 'devtools::install("/tmp/DNMB", dependencies = FALSE)'; \
+      && R -e 'remotes::install_local("/tmp/DNMB", dependencies = FALSE, upgrade = "never")'; \
     fi \
     && rm -rf /tmp/DNMB /tmp/DNMB-local
 
