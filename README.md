@@ -293,6 +293,35 @@ setwd("/data")
 run_DNMB(clean_previous = TRUE)
 ```
 
+### Comparative per-module heatmaps across genomes
+
+After per-genome DNMB runs finish, render across-genome heatmaps for
+defense-module families as well as enzyme/CAZyme modules. Each plotter
+treats every GenBank-bearing subfolder of `data_root` as one genome,
+auto-runs only the relevant module (`db = "<Module>"`, not the full
+pipeline) for genomes missing that output, and writes a PDF + count
+matrix under `<data_root>/comparative/`.
+
+```r
+library(DNMB)
+
+data_root <- "/data"   # parent directory with one subfolder per genome
+
+# Defense-system heatmaps (purple palette)
+dnmb_plot_comparative_defensefinder(data_root)    # DefenseFinder
+dnmb_plot_comparative_padloc(data_root)           # PADLOC
+dnmb_plot_comparative_defensepredictor(data_root) # DefensePredictor
+dnmb_plot_comparative_rebasefinder(data_root)     # REBASEfinder
+
+# Enzyme / CAZyme heatmaps (module-specific palettes)
+dnmb_plot_comparative_merops(data_root)           # MEROPS peptidase families
+dnmb_plot_comparative_dbcan(data_root)            # dbCAN CAZy classes
+dnmb_plot_comparative_cgc(data_root)              # CGC signature mixes
+dnmb_plot_comparative_pazy(data_root)             # PAZy families
+```
+
+Pass `auto_run_missing = FALSE` to render only what already exists.
+
 ### One-shot full run
 
 Run DNMB directly without opening an interactive shell:
