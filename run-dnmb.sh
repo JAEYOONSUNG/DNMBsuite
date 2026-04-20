@@ -35,6 +35,12 @@ Options:
   --dnmb-auto-update-branch <name>
                             Git branch to follow when auto-update is enabled.
   --image <image>           Override the Docker image to run.
+
+GPU defaults:
+  CLEAN and PIDE default to ON only when an NVIDIA GPU is detected via
+  `nvidia-smi -L`. When CUDA is available, `--gpus all` is passed to
+  `docker run`. Force the choice by setting DNMB_CUDA=1 or DNMB_CUDA=0,
+  or override per-module with e.g. `--modules clean` / `--skip-modules pide`.
 EOF
 }
 
@@ -97,9 +103,27 @@ split_csv() {
   done
 }
 
+detect_cuda() {
+  case "${DNMB_CUDA:-}" in
+    1|true|TRUE|yes|YES|on|ON) echo TRUE; return ;;
+    0|false|FALSE|no|NO|off|OFF) echo FALSE; return ;;
+  esac
+  if command -v nvidia-smi >/dev/null 2>&1 && nvidia-smi -L >/dev/null 2>&1; then
+    echo TRUE
+  else
+    echo FALSE
+  fi
+}
+CUDA_AVAILABLE="$(detect_cuda)"
+if [ "$CUDA_AVAILABLE" = TRUE ]; then
+  printf '[run-dnmb] CUDA detected — CLEAN/PIDE enabled by default.\n' >&2
+else
+  printf '[run-dnmb] CUDA not detected — CLEAN/PIDE skipped by default (override: --module clean=true or DNMB_CUDA=1).\n' >&2
+fi
+
 MODULE_DBCAN=TRUE
 MODULE_MEROPS=TRUE
-MODULE_CLEAN=TRUE
+MODULE_CLEAN="$CUDA_AVAILABLE"
 MODULE_PAZY=TRUE
 MODULE_GAPMIND=TRUE
 MODULE_DEFENSEFINDER=TRUE
@@ -110,7 +134,7 @@ MODULE_ISELEMENT=TRUE
 MODULE_PROPHAGE=FALSE
 MODULE_PHISPY=TRUE
 MODULE_VIRSORTER2=FALSE
-MODULE_PIDE=FALSE
+MODULE_PIDE="$CUDA_AVAILABLE"
 MODULE_EGGNOG=TRUE
 MODULE_INTERPROSCAN=TRUE
 
@@ -344,9 +368,16 @@ done
 
 R_EXPR="library(DNMB); setwd(\"/data\"); run_DNMB(${R_ARG_STRING})"
 
+GPU_ARGS=()
+if [ "$CUDA_AVAILABLE" = TRUE ]; then
+  GPU_ARGS+=(--gpus all)
+fi
+
 if docker run --rm \
+  "${GPU_ARGS[@]}" \
   -e "DNMB_AUTO_UPDATE=$DNMB_AUTO_UPDATE" \
   -e "DNMB_AUTO_UPDATE_BRANCH=$DNMB_AUTO_UPDATE_BRANCH" \
+  -e "DNMB_CUDA=$CUDA_AVAILABLE" \
   -v "$OUTPUT_ABS:/data" \
   -v "$CACHE_ROOT:/opt/dnmb/cache" \
   --ulimit stack=67108864 \

@@ -174,6 +174,21 @@ Special values for `--modules`:
 - `none`
 - `core`
 
+### GPU-gated defaults (CLEAN and PIDE)
+
+`CLEAN` and `PIDE` are both GPU-heavy: CLEAN runs LayerNormNet
+embeddings, and PIDE runs an ESM-650M protein language model. Both run
+~50–100× faster on a CUDA GPU than on CPU.
+
+- `run-dnmb.sh` probes `nvidia-smi -L` and turns `CLEAN`/`PIDE` on **only
+  when a CUDA GPU is detected**; otherwise they are skipped so a typical
+  laptop run completes in minutes rather than hours.
+- When CUDA is detected the script also adds `--gpus all` to
+  `docker run` so the container can reach the GPU, and exports
+  `DNMB_CUDA=TRUE` for the R defaults to agree.
+- Force the choice with `DNMB_CUDA=1` or `DNMB_CUDA=0`, or override on
+  the command line with `--modules clean,pide` / `--skip-modules clean,pide`.
+
 ## Repository-Style Quick Start
 
 If you prefer to run from inside the repository with Docker Compose, create a
