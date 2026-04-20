@@ -24,7 +24,8 @@ Options:
                             dbcan, merops, clean, pazy, gapmind,
                             defensefinder, padloc, defensepredictor,
                             rebasefinder, iselement,
-                            prophage, eggnog, interproscan
+                            phispy, virsorter2, pide,
+                            prophage (deprecated alias), eggnog, interproscan
                             Special values: all, none, core
   --skip-modules <list>     Comma-separated module list to disable.
   --cpu <n>                 Thread count passed to run_DNMB().
@@ -71,6 +72,9 @@ normalize_module_name() {
     defensepredictor|defense-predictor) echo "defensepredictor" ;;
     rebasefinder|rebase) echo "rebasefinder" ;;
     iselement|iselements|is) echo "iselement" ;;
+    phispy) echo "phispy" ;;
+    virsorter2|virsorter) echo "virsorter2" ;;
+    pide) echo "pide" ;;
     prophage) echo "prophage" ;;
     eggnog) echo "eggnog" ;;
     interproscan|interpro) echo "interproscan" ;;
@@ -103,7 +107,10 @@ MODULE_PADLOC=TRUE
 MODULE_DEFENSEPREDICTOR=TRUE
 MODULE_REBASEFINDER=TRUE
 MODULE_ISELEMENT=TRUE
-MODULE_PROPHAGE=TRUE
+MODULE_PROPHAGE=FALSE
+MODULE_PHISPY=TRUE
+MODULE_VIRSORTER2=FALSE
+MODULE_PIDE=FALSE
 MODULE_EGGNOG=TRUE
 MODULE_INTERPROSCAN=TRUE
 
@@ -119,7 +126,10 @@ set_all_modules() {
   MODULE_DEFENSEPREDICTOR="$value"
   MODULE_REBASEFINDER="$value"
   MODULE_ISELEMENT="$value"
-  MODULE_PROPHAGE="$value"
+  MODULE_PROPHAGE=FALSE
+  MODULE_PHISPY="$value"
+  MODULE_VIRSORTER2="$value"
+  MODULE_PIDE="$value"
   MODULE_EGGNOG="$value"
   MODULE_INTERPROSCAN="$value"
 }
@@ -138,6 +148,9 @@ set_module_flag() {
     defensepredictor) MODULE_DEFENSEPREDICTOR="$value" ;;
     rebasefinder) MODULE_REBASEFINDER="$value" ;;
     iselement) MODULE_ISELEMENT="$value" ;;
+    phispy) MODULE_PHISPY="$value" ;;
+    virsorter2) MODULE_VIRSORTER2="$value" ;;
+    pide) MODULE_PIDE="$value" ;;
     prophage) MODULE_PROPHAGE="$value" ;;
     eggnog) MODULE_EGGNOG="$value" ;;
     interproscan) MODULE_INTERPROSCAN="$value" ;;
@@ -307,6 +320,9 @@ R_ARGS+=("module_DefensePredictor = ${MODULE_DEFENSEPREDICTOR}")
 R_ARGS+=("module_REBASEfinder = ${MODULE_REBASEFINDER}")
 R_ARGS+=("module_ISelement = ${MODULE_ISELEMENT}")
 R_ARGS+=("module_Prophage = ${MODULE_PROPHAGE}")
+R_ARGS+=("module_PhiSpy = ${MODULE_PHISPY}")
+R_ARGS+=("module_VirSorter2 = ${MODULE_VIRSORTER2}")
+R_ARGS+=("module_PIDE = ${MODULE_PIDE}")
 R_ARGS+=("module_EggNOG = ${MODULE_EGGNOG}")
 R_ARGS+=("module_InterProScan = ${MODULE_INTERPROSCAN}")
 
