@@ -293,7 +293,23 @@ setwd("/data")
 run_DNMB(clean_previous = TRUE)
 ```
 
+To also emit the full comparative suite across sibling genome folders at
+the end of the per-genome run, pass `comparative = TRUE`:
+
+```r
+library(DNMB)
+setwd("/data/<focal-genome>")
+run_DNMB(clean_previous = TRUE, comparative = TRUE)
+# or point elsewhere:
+# run_DNMB(clean_previous = TRUE, comparative = TRUE, comparative_data_root = "/data")
+```
+
 ### Comparative per-module heatmaps across genomes
+
+`run_DNMB(comparative = TRUE)` renders the full suite end-to-end after
+the per-genome pipeline finishes (it calls each plotter below against
+`dirname(getwd())`, or `comparative_data_root` when supplied). The
+individual plotters stay useful when you want a subset or custom colors.
 
 After per-genome DNMB runs finish, render across-genome heatmaps for
 defense-module families as well as enzyme/CAZyme modules. Each plotter
