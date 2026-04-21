@@ -209,42 +209,6 @@ embeddings, and PIDE runs an ESM-650M protein language model. Both run
 - Force the choice with `DNMB_CUDA=1` or `DNMB_CUDA=0`, or override on
   the command line with `--modules clean,pide` / `--skip-modules clean,pide`.
 
-## Repository-Style Quick Start
-
-If you prefer to run from inside the repository with Docker Compose, create a
-`data/` directory in the repository root and put your GenBank file there.
-DNMB writes outputs back into the same `data/` directory.
-
-Example layout:
-
-```text
-DNMBsuite/
-└── data/
-    └── GCF_030369615.1.gbff
-```
-
-### Option A. Pull the published image
-
-```bash
-docker pull ghcr.io/jaeyoonsung/dnmbsuite:latest
-```
-
-### Option B. Build locally from this repository
-
-```bash
-docker build \
-  --build-arg DNMB_REF=master \
-  -t ghcr.io/jaeyoonsung/dnmbsuite:latest .
-```
-
-### Run
-
-From the `DNMBsuite/` directory:
-
-```bash
-docker compose up
-```
-
 ### Output location
 
 Outputs are written into the same `data/` directory that contains the input
@@ -414,40 +378,6 @@ dnmb_plot_comparative_pide(data_root)       # PIDE regions bucketed by size
 
 Pass `auto_run_missing = FALSE` to render only what already exists.
 
-### One-shot full run
-
-Run DNMB directly without opening an interactive shell:
-
-```bash
-docker compose up
-```
-
-### One-shot run with explicit options
-
-```bash
-docker run --rm \
-  --user "$(id -u):$(id -g)" \
-  -e DNMB_MODULES=defensefinder,iselement,prophage \
-  -e DNMB_MODULE_CPU=8 \
-  -e DNMB_AUTO_UPDATE=0 \
-  -v /path/to/workdir:/data \
-  -v "$HOME/.dnmb-cache:/opt/dnmb/cache" \
-  ghcr.io/jaeyoonsung/dnmbsuite:latest
-```
-
-One-shot anti-defense-focused run:
-
-```bash
-docker run --rm \
-  --user "$(id -u):$(id -g)" \
-  -e DNMB_MODULES=defensefinder,dbapis,acrfinder \
-  -e DNMB_MODULE_CPU=8 \
-  -e DNMB_AUTO_UPDATE=0 \
-  -v /path/to/workdir:/data \
-  -v "$HOME/.dnmb-cache:/opt/dnmb/cache" \
-  ghcr.io/jaeyoonsung/dnmbsuite:latest
-```
-
 ### Notes for testers
 
 - Put exactly the input GenBank files you want to analyze into `./data`.
@@ -547,20 +477,3 @@ docker build --build-arg DNMB_REF=master -t ghcr.io/jaeyoonsung/dnmbsuite:latest
 docker build --build-arg DNMB_REF=<commit-sha> -t ghcr.io/jaeyoonsung/dnmbsuite:dev .
 ```
 
-## Publish To GHCR
-
-This repository includes a GitHub Actions workflow that builds and publishes to GitHub Container Registry.
-
-Expected image name:
-
-```text
-ghcr.io/jaeyoonsung/dnmbsuite
-```
-
-Before first release:
-
-1. Push this repository to `JAEYOONSUNG/DNMBsuite`.
-2. Confirm Actions and Packages permissions are enabled.
-3. Optionally change the default `DNMB_REF` in the workflow if you want to pin a specific core release later.
-
-After that, pushes to `master` or tags matching `v*` will publish the image automatically.
