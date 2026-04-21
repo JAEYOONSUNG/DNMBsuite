@@ -145,6 +145,18 @@ if [ "${DNMB_ENTRYPOINT_SKIP_ROOT_SETUP:-0}" != "1" ]; then
     tar -xzf /opt/dnmb-seed/defensefinder/current.tar.gz -C "$DEFENSEFINDER_CACHE_ROOT"
   fi
 
+  DBAPIS_CACHE_ROOT="${DNMB_CACHE_ROOT:-/opt/dnmb/cache}/db_modules/dbapis"
+  if [ ! -f "$DBAPIS_CACHE_ROOT/current/data_download/dbAPIS.hmm" ] && [ -f /opt/dnmb-seed/dbapis/current.tar.gz ]; then
+    mkdir -p "$DBAPIS_CACHE_ROOT"
+    tar -xzf /opt/dnmb-seed/dbapis/current.tar.gz -C "$DBAPIS_CACHE_ROOT"
+  fi
+
+  ACRFINDER_CACHE_ROOT="${DNMB_CACHE_ROOT:-/opt/dnmb/cache}/db_modules/acrfinder"
+  if [ ! -x "$ACRFINDER_CACHE_ROOT/current/venv/bin/python" ] && [ -f /opt/dnmb-seed/acrfinder/current.tar.gz ]; then
+    mkdir -p "$ACRFINDER_CACHE_ROOT"
+    tar -xzf /opt/dnmb-seed/acrfinder/current.tar.gz -C "$ACRFINDER_CACHE_ROOT"
+  fi
+
   if [ -x "$CLEAN_CACHE_ROOT/conda_env/bin/python" ] && [ -f "$CLEAN_CACHE_ROOT/CLEAN/app/build.py" ]; then
     if ! "$CLEAN_CACHE_ROOT/conda_env/bin/python" -c "import CLEAN" >/dev/null 2>&1; then
       (
@@ -205,6 +217,8 @@ normalize_module_name() {
     pazy) echo "pazy" ;;
     gapmind|gapmindaa|gapmindcarbon) echo "gapmind" ;;
     defensefinder|defense) echo "defensefinder" ;;
+    dbapis) echo "dbapis" ;;
+    acrfinder|acr) echo "acrfinder" ;;
     padloc) echo "padloc" ;;
     defensepredictor|defense-predictor) echo "defensepredictor" ;;
     rebasefinder|rebase) echo "rebasefinder" ;;
@@ -227,6 +241,8 @@ set_all_modules() {
   MODULE_PAZY="$value"
   MODULE_GAPMIND="$value"
   MODULE_DEFENSEFINDER="$value"
+  MODULE_DBAPIS="$value"
+  MODULE_ACRFINDER="$value"
   MODULE_PADLOC="$value"
   MODULE_DEFENSEPREDICTOR="$value"
   MODULE_REBASEFINDER="$value"
@@ -246,6 +262,8 @@ set_module_flag() {
     pazy) MODULE_PAZY="$value" ;;
     gapmind) MODULE_GAPMIND="$value" ;;
     defensefinder) MODULE_DEFENSEFINDER="$value" ;;
+    dbapis) MODULE_DBAPIS="$value" ;;
+    acrfinder) MODULE_ACRFINDER="$value" ;;
     padloc) MODULE_PADLOC="$value" ;;
     defensepredictor) MODULE_DEFENSEPREDICTOR="$value" ;;
     rebasefinder) MODULE_REBASEFINDER="$value" ;;
@@ -282,6 +300,8 @@ build_r_arg_string() {
   MODULE_PAZY=TRUE
   MODULE_GAPMIND=TRUE
   MODULE_DEFENSEFINDER=TRUE
+  MODULE_DBAPIS=TRUE
+  MODULE_ACRFINDER=TRUE
   MODULE_PADLOC=TRUE
   MODULE_DEFENSEPREDICTOR=TRUE
   MODULE_REBASEFINDER=TRUE
@@ -318,6 +338,8 @@ build_r_arg_string() {
   r_args+=("module_PAZy = ${MODULE_PAZY}")
   r_args+=("module_GapMind = ${MODULE_GAPMIND}")
   r_args+=("module_DefenseFinder = ${MODULE_DEFENSEFINDER}")
+  r_args+=("module_dbAPIS = ${MODULE_DBAPIS}")
+  r_args+=("module_AcrFinder = ${MODULE_ACRFINDER}")
   r_args+=("module_PADLOC = ${MODULE_PADLOC}")
   r_args+=("module_DefensePredictor = ${MODULE_DEFENSEPREDICTOR}")
   r_args+=("module_REBASEfinder = ${MODULE_REBASEFINDER}")
@@ -376,7 +398,7 @@ run_dnmb_single_file() {
   local output_dir="${DNMB_OUTPUT_DIR:-$(dirname "$input_file")}"
   local stage_dir
   stage_dir="$(mktemp -d /tmp/dnmb-single-XXXXXX)"
-  trap 'rm -rf "$stage_dir"' EXIT
+  trap 'rm -rf "${stage_dir:-}"' EXIT
   mkdir -p "$output_dir"
   cp -f "$input_file" "$stage_dir/$(basename "$input_file")"
   local arg_string

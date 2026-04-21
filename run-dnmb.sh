@@ -22,7 +22,8 @@ Options:
   --modules <list>          Comma-separated module list to enable.
                             Supported names:
                             dbcan, merops, clean, pazy, gapmind,
-                            defensefinder, padloc, defensepredictor,
+                            defensefinder, dbapis, acrfinder,
+                            padloc, defensepredictor,
                             rebasefinder, iselement,
                             phispy, virsorter2, pide,
                             prophage (deprecated alias), eggnog, interproscan
@@ -74,6 +75,8 @@ normalize_module_name() {
     pazy) echo "pazy" ;;
     gapmind|gapmindaa|gapmindcarbon) echo "gapmind" ;;
     defensefinder|defense) echo "defensefinder" ;;
+    dbapis) echo "dbapis" ;;
+    acrfinder|acr) echo "acrfinder" ;;
     padloc) echo "padloc" ;;
     defensepredictor|defense-predictor) echo "defensepredictor" ;;
     rebasefinder|rebase) echo "rebasefinder" ;;
@@ -127,6 +130,8 @@ MODULE_CLEAN="$CUDA_AVAILABLE"
 MODULE_PAZY=TRUE
 MODULE_GAPMIND=TRUE
 MODULE_DEFENSEFINDER=TRUE
+MODULE_DBAPIS=TRUE
+MODULE_ACRFINDER=TRUE
 MODULE_PADLOC=TRUE
 MODULE_DEFENSEPREDICTOR=TRUE
 MODULE_REBASEFINDER=TRUE
@@ -146,6 +151,8 @@ set_all_modules() {
   MODULE_PAZY="$value"
   MODULE_GAPMIND="$value"
   MODULE_DEFENSEFINDER="$value"
+  MODULE_DBAPIS="$value"
+  MODULE_ACRFINDER="$value"
   MODULE_PADLOC="$value"
   MODULE_DEFENSEPREDICTOR="$value"
   MODULE_REBASEFINDER="$value"
@@ -168,6 +175,8 @@ set_module_flag() {
     pazy) MODULE_PAZY="$value" ;;
     gapmind) MODULE_GAPMIND="$value" ;;
     defensefinder) MODULE_DEFENSEFINDER="$value" ;;
+    dbapis) MODULE_DBAPIS="$value" ;;
+    acrfinder) MODULE_ACRFINDER="$value" ;;
     padloc) MODULE_PADLOC="$value" ;;
     defensepredictor) MODULE_DEFENSEPREDICTOR="$value" ;;
     rebasefinder) MODULE_REBASEFINDER="$value" ;;
@@ -339,6 +348,8 @@ R_ARGS+=("module_CLEAN = ${MODULE_CLEAN}")
 R_ARGS+=("module_PAZy = ${MODULE_PAZY}")
 R_ARGS+=("module_GapMind = ${MODULE_GAPMIND}")
 R_ARGS+=("module_DefenseFinder = ${MODULE_DEFENSEFINDER}")
+R_ARGS+=("module_dbAPIS = ${MODULE_DBAPIS}")
+R_ARGS+=("module_AcrFinder = ${MODULE_ACRFINDER}")
 R_ARGS+=("module_PADLOC = ${MODULE_PADLOC}")
 R_ARGS+=("module_DefensePredictor = ${MODULE_DEFENSEPREDICTOR}")
 R_ARGS+=("module_REBASEfinder = ${MODULE_REBASEFINDER}")
