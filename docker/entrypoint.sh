@@ -139,6 +139,12 @@ if [ "${DNMB_ENTRYPOINT_SKIP_ROOT_SETUP:-0}" != "1" ]; then
     tar -xzf /opt/dnmb-seed/clean/split100/conda_env.tar.gz -C "$CLEAN_CACHE_ROOT"
   fi
 
+  DEFENSEFINDER_CACHE_ROOT="${DNMB_CACHE_ROOT:-/opt/dnmb/cache}/db_modules/defensefinder"
+  if [ ! -x "$DEFENSEFINDER_CACHE_ROOT/current/venv/bin/defense-finder" ] && [ -f /opt/dnmb-seed/defensefinder/current.tar.gz ]; then
+    mkdir -p "$DEFENSEFINDER_CACHE_ROOT"
+    tar -xzf /opt/dnmb-seed/defensefinder/current.tar.gz -C "$DEFENSEFINDER_CACHE_ROOT"
+  fi
+
   if [ -x "$CLEAN_CACHE_ROOT/conda_env/bin/python" ] && [ -f "$CLEAN_CACHE_ROOT/CLEAN/app/build.py" ]; then
     if ! "$CLEAN_CACHE_ROOT/conda_env/bin/python" -c "import CLEAN" >/dev/null 2>&1; then
       (

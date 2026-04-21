@@ -9,6 +9,8 @@ ARG DNMB_SOURCE=github
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV DNMB_CACHE_ROOT=/opt/dnmb/cache
+ENV DNMB_DEFENSEFINDER_CASFINDER_DIR=/root/.macsyfinder/models/CasFinder
+ENV DNMB_DEFENSEFINDER_REPO_DIR=/opt/vendor/defense-finder
 ENV R_LIBS_SITE=/opt/biotools/lib/R/library
 ENV R_LIBS=/opt/biotools/lib/R/library
 ENV LANG=en_US.UTF-8
@@ -87,8 +89,10 @@ RUN export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64 \
 
 RUN R -e 'remotes::install_github("JAEYOONSUNG/DefenseViz", dependencies = FALSE, upgrade = "never")'
 
-RUN /opt/biotools/bin/python -m pip install --no-cache-dir \
-    git+https://github.com/mdmparis/defense-finder.git
+RUN /opt/biotools/bin/python -m pip install --no-cache-dir 'macsyfinder==2.1.4' \
+    && /opt/biotools/bin/macsydata install -u 'CasFinder==3.1.0'
+
+RUN git clone --branch v2.0.1 --depth 1 https://github.com/mdmparis/defense-finder.git /opt/vendor/defense-finder
 
 COPY docker/local-dnmb-snapshot/ /tmp/DNMB-local/
 
@@ -100,6 +104,11 @@ RUN if [ "${DNMB_SOURCE}" = "local" ]; then \
       && R -e 'remotes::install_local("/tmp/DNMB", dependencies = FALSE, upgrade = "never")'; \
     fi \
     && rm -rf /tmp/DNMB /tmp/DNMB-local
+
+RUN Rscript -e 'DNMB:::dnmb_defensefinder_install_module(cache_root = Sys.getenv("DNMB_CACHE_ROOT"), install = TRUE, repo_url = Sys.getenv("DNMB_DEFENSEFINDER_REPO_DIR"), asset_urls = list(casfinder_dir = Sys.getenv("DNMB_DEFENSEFINDER_CASFINDER_DIR")), force = TRUE)'
+
+RUN mkdir -p /opt/dnmb-seed/defensefinder \
+    && tar -C ${DNMB_CACHE_ROOT}/db_modules/defensefinder -czf /opt/dnmb-seed/defensefinder/current.tar.gz current
 
 RUN mkdir -p /data /results ${DNMB_CACHE_ROOT} /opt/biotools/data /opt/biotools/test
 

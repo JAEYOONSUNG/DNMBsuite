@@ -1,5 +1,6 @@
 .DS_Store
 .env
+gurobi.log
 data/
 results/
 docker/local-dnmb-snapshot/*
