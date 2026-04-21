@@ -69,6 +69,18 @@ docker run --rm \
   ghcr.io/jaeyoonsung/dnmbsuite:latest
 ```
 
+Run the anti-defense stack only with direct Docker:
+
+```bash
+docker run --rm \
+  --user "$(id -u):$(id -g)" \
+  -e DNMB_MODULES=defensefinder,dbapis,acrfinder \
+  -e DNMB_MODULE_CPU=8 \
+  -v "$PWD:/data" \
+  -v "$HOME/.dnmb-cache:/opt/dnmb/cache" \
+  ghcr.io/jaeyoonsung/dnmbsuite:latest
+```
+
 Run while disabling selected modules with direct Docker:
 
 ```bash
@@ -123,6 +135,12 @@ bash run-dnmb.sh /path/to/GCF_030369615.1.gbff --modules defensefinder,iselement
 bash run-dnmb.sh /path/to/GCF_030369615.1.gbff --modules defensefinder,padloc,defensepredictor,iselement,prophage
 ```
 
+Run the anti-defense stack only:
+
+```bash
+bash run-dnmb.sh /path/to/GCF_030369615.1.gbff --modules defensefinder,dbapis,acrfinder
+```
+
 Run while disabling selected modules:
 
 ```bash
@@ -156,6 +174,8 @@ Supported module names for `--modules` and `--skip-modules`:
 - `dbcan`
 - `rebasefinder`
 - `defensefinder`
+- `dbapis`
+- `acrfinder`
 - `padloc`
 - `defensepredictor`
 - `merops`
@@ -237,7 +257,9 @@ data/
 ├── GCF_030369615.1.gbff
 ├── GCF_030369615_total.xlsx
 ├── dnmb_interproscan/
+├── dnmb_module_acrfinder/
 ├── dnmb_module_clean/
+├── dnmb_module_dbapis/
 ├── dnmb_module_defensefinder/
 ├── dnmb_module_padloc/
 ├── dnmb_module_defensepredictor/
@@ -251,6 +273,34 @@ data/
 ├── dnmb_module_rebasefinder/
 └── visualizations/
 ```
+
+### Anti-defense outputs
+
+When anti-defense hits are found, DNMBsuite aggregates:
+
+- `DefenseFinder --antidefensefinder`
+- `dbAPIS`
+- `AcrFinder`
+
+into the final workbook and the anti-defense visualization set.
+
+Typical anti-defense output paths are:
+
+```text
+data/
+├── dnmb_module_acrfinder/
+├── dnmb_module_dbapis/
+├── dnmb_module_defensefinder/
+└── visualizations/
+    ├── AntiDefense_overview.pdf
+    └── AntiDefenseFinder_overview.pdf
+```
+
+Notes:
+
+- `AntiDefense_overview.pdf` is the integrated anti-defense summary across the available anti-defense modules.
+- `AntiDefenseFinder_overview.pdf` is the DefenseFinder-specific anti-defense plot.
+- If all anti-defense modules complete with `0` hits for a genome, the anti-defense PDFs can be skipped because there is nothing to draw.
 
 ### First-run behavior
 
@@ -378,6 +428,19 @@ docker compose up
 docker run --rm \
   --user "$(id -u):$(id -g)" \
   -e DNMB_MODULES=defensefinder,iselement,prophage \
+  -e DNMB_MODULE_CPU=8 \
+  -e DNMB_AUTO_UPDATE=0 \
+  -v /path/to/workdir:/data \
+  -v "$HOME/.dnmb-cache:/opt/dnmb/cache" \
+  ghcr.io/jaeyoonsung/dnmbsuite:latest
+```
+
+One-shot anti-defense-focused run:
+
+```bash
+docker run --rm \
+  --user "$(id -u):$(id -g)" \
+  -e DNMB_MODULES=defensefinder,dbapis,acrfinder \
   -e DNMB_MODULE_CPU=8 \
   -e DNMB_AUTO_UPDATE=0 \
   -v /path/to/workdir:/data \
