@@ -83,10 +83,10 @@ RUN R -e ' \
     cran_repo <- "https://cran.r-project.org"; \
     options(repos = c(CRAN = cran_repo), download.file.method = "libcurl", Ncpus = 1); \
     install.packages("remotes"); \
-    install.packages(c("rlang", "vctrs", "tibble", "ggplot2")); \
+    install.packages(c("rlang", "vctrs", "tibble", "ggplot2", "sp", "pixmap", "RcppArmadillo", "ade4", "seqinr")); \
     install.packages(c( \
       "dplyr", "plyr", "tidyr", "data.table", "reshape2", \
-      "readr", "openxlsx", "seqinr", "stringr", "jsonlite", "gtools", \
+      "readr", "openxlsx", "stringr", "jsonlite", "gtools", \
       "cowplot", "gggenes", "ggrepel", "ggtext", "ggseqlogo", \
       "ggforce", "gridExtra", "scales", "Peptides", "circlize", "ggplotify", \
       "testthat", "ggnewscale", "patchwork", "gridBase", "gtable", "colorspace", \
