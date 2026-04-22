@@ -80,22 +80,24 @@ RUN mkdir -p /opt/dnmb-seed/clean/split100 \
 RUN rm -rf /opt/miniforge
 
 RUN R -e ' \
-    options(Ncpus = parallel::detectCores()); \
-    install.packages("remotes", repos = "https://cloud.r-project.org"); \
+    cran_repo <- "https://cran.r-project.org"; \
+    options(repos = c(CRAN = cran_repo), download.file.method = "libcurl", Ncpus = 1); \
+    install.packages("remotes"); \
+    install.packages(c("rlang", "vctrs", "tibble", "ggplot2")); \
     install.packages(c( \
-      "dplyr", "plyr", "tidyr", "data.table", "tibble", "reshape2", \
+      "dplyr", "plyr", "tidyr", "data.table", "reshape2", \
       "readr", "openxlsx", "seqinr", "stringr", "jsonlite", "gtools", \
-      "ggplot2", "cowplot", "gggenes", "ggrepel", "ggtext", "ggseqlogo", \
+      "cowplot", "gggenes", "ggrepel", "ggtext", "ggseqlogo", \
       "ggforce", "gridExtra", "scales", "Peptides", "circlize", "ggplotify", \
-      "testthat", "tidyverse", \
-      "ggnewscale", "patchwork", "gridBase", "gtable", "colorspace" \
-    ), repos = "https://cloud.r-project.org"); \
+      "testthat", "ggnewscale", "patchwork", "gridBase", "gtable", "colorspace", \
+      "tidyverse" \
+    )); \
 '
 RUN export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64 \
     && export LD_LIBRARY_PATH=/usr/lib/jvm/java-11-openjdk-amd64/lib/server:${LD_LIBRARY_PATH} \
     && R CMD javareconf \
-    && R -e 'install.packages("rJava", repos = "https://cloud.r-project.org", configure.args = "--disable-jri")' \
-    && R -e 'install.packages("venneuler", repos = "https://cloud.r-project.org", Ncpus = 1)'
+    && R -e 'options(repos = c(CRAN = "https://cran.r-project.org"), download.file.method = "libcurl"); install.packages("rJava", configure.args = "--disable-jri")' \
+    && R -e 'options(repos = c(CRAN = "https://cran.r-project.org"), download.file.method = "libcurl"); install.packages("venneuler", Ncpus = 1)'
 
 RUN R -e 'remotes::install_github("JAEYOONSUNG/DefenseViz", dependencies = FALSE, upgrade = "never")'
 
