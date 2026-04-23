@@ -29,6 +29,7 @@ RUN apt-get -o Acquire::Retries=5 update \
     cmake pkg-config curl wget git procps ca-certificates locales gosu \
     cpanminus bioperl bioperl-run emboss emboss-lib clustalw muscle \
     python2 libdatetime-perl libxml-simple-perl libdigest-md5-perl \
+    libdbi-perl libdbd-sqlite3-perl \
     default-jdk \
     libwebp-dev \
     poppler-utils \
@@ -145,7 +146,7 @@ RUN set -eux; \
 
 RUN perl -0pi -e 's/^from Bio\\.Alphabet import SingleLetterAlphabet\\n//m; s/Seq\\(([^,\\n]+), SingleLetterAlphabet\\(\\)\\)/Seq($1)/g' /opt/vendor/acrfinder/mask_fna_with_spacers.py
 
-ENV PATH=/opt/vendor/acrfinder/bin:/opt/vendor/acrfinder/dependencies/CRISPRCasFinder/bin:/opt/biotools/bin:${PATH}
+ENV PATH=/opt/biotools/bin:/opt/vendor/acrfinder/bin:/opt/vendor/acrfinder/dependencies/CRISPRCasFinder/bin:${PATH}
 
 COPY docker/local-dnmb-snapshot/ /tmp/DNMB-local/
 
