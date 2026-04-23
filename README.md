@@ -102,7 +102,7 @@ What this does:
 - keeps raw InterProScan TSV outputs inside `dnmb_interproscan/`
 - on Linux, runs as your current host UID/GID in the direct `docker run` examples so output and cache files stay writable by you
 - on arm64 hosts, add `--platform linux/amd64` to the direct `docker run` command because the published image is currently `amd64`
-- lets you control module selection through `DNMB_MODULES`, `DNMB_SKIP_MODULES`, `DNMB_MODULE_CPU`, `DNMB_PROPHAGE_BACKEND`, and `DNMB_CLEAN_PREVIOUS`
+- lets you control module selection through `DNMB_MODULES`, `DNMB_SKIP_MODULES`, `DNMB_MODULE_CPU`, `DNMB_PROPHAGE_BACKEND`, `DNMB_CLEAN_PREVIOUS`, `DNMB_COMPARATIVE`, and `DNMB_COMPARATIVE_DATA_ROOT`
 
 ## Optional Shell Launcher
 
@@ -343,6 +343,56 @@ the per-genome pipeline finishes (it calls each plotter below against
 `dirname(getwd())`, or `comparative_data_root` when supplied). The
 individual plotters stay useful when you want a subset or custom colors.
 
+Run the comparative suite directly with Docker, without opening R, after
+per-genome DNMB runs have already produced one genome folder per GenBank file:
+
+```text
+data/
+├── genome_1/
+│   └── input_1.gbff
+├── genome_2/
+│   └── input_2.gbff
+└── genome_3/
+    └── input_3.gbff
+```
+
+From the parent directory that contains `data/`:
+
+```bash
+docker run --rm \
+  --platform linux/amd64 \
+  --user "$(id -u):$(id -g)" \
+  -e DNMB_MODULE_CPU=8 \
+  -v "$PWD/data:/data" \
+  -v "$HOME/.dnmb-cache:/opt/dnmb/cache" \
+  ghcr.io/jaeyoonsung/dnmbsuite:latest \
+  comparative /data
+```
+
+This writes comparative PDFs and count matrices under:
+
+```text
+data/comparative/
+```
+
+To run a per-genome DNMB analysis and render the comparative suite at the end
+from a focal genome folder, use:
+
+```bash
+cd /path/to/data/genome_1
+
+docker run --rm \
+  --platform linux/amd64 \
+  --user "$(id -u):$(id -g)" \
+  -e DNMB_COMPARATIVE=1 \
+  -e DNMB_COMPARATIVE_DATA_ROOT=/data \
+  -e DNMB_MODULE_CPU=8 \
+  -v "$(dirname "$PWD"):/data" \
+  -v "$HOME/.dnmb-cache:/opt/dnmb/cache" \
+  ghcr.io/jaeyoonsung/dnmbsuite:latest \
+  /data/$(basename "$PWD")
+```
+
 After per-genome DNMB runs finish, render across-genome heatmaps for
 defense-module families as well as enzyme/CAZyme modules. Each plotter
 treats every GenBank-bearing subfolder of `data_root` as one genome,
@@ -392,7 +442,7 @@ Pass `auto_run_missing = FALSE` to render only what already exists.
   to the direct `docker run` command after creating that host folder once with:
   `mkdir -p "$HOME/.dnmb-cache/padloc-bootstrap"`
 - Advanced launcher environment variables:
-  `DNMB_MODULES`, `DNMB_SKIP_MODULES`, `DNMB_MODULE_CPU`, `DNMB_PROPHAGE_BACKEND`, `DNMB_CLEAN_PREVIOUS`, `DNMB_AUTO_UPDATE`, `DNMB_AUTO_UPDATE_BRANCH`
+  `DNMB_MODULES`, `DNMB_SKIP_MODULES`, `DNMB_MODULE_CPU`, `DNMB_PROPHAGE_BACKEND`, `DNMB_CLEAN_PREVIOUS`, `DNMB_COMPARATIVE`, `DNMB_COMPARATIVE_DATA_ROOT`, `DNMB_AUTO_UPDATE`, `DNMB_AUTO_UPDATE_BRANCH`
 
 ## Compose
 
@@ -476,4 +526,3 @@ If you need to override the build-time core ref, use `DNMB_REF`:
 docker build --build-arg DNMB_REF=master -t ghcr.io/jaeyoonsung/dnmbsuite:latest .
 docker build --build-arg DNMB_REF=<commit-sha> -t ghcr.io/jaeyoonsung/dnmbsuite:dev .
 ```
-

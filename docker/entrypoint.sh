@@ -291,6 +291,8 @@ build_r_arg_string() {
   local clean_previous="${DNMB_CLEAN_PREVIOUS:-TRUE}"
   local module_cpu="${DNMB_MODULE_CPU:-}"
   local prophage_backend="${DNMB_PROPHAGE_BACKEND:-}"
+  local comparative="${DNMB_COMPARATIVE:-}"
+  local comparative_data_root="${DNMB_COMPARATIVE_DATA_ROOT:-}"
   local modules="${DNMB_MODULES:-}"
   local skip_modules="${DNMB_SKIP_MODULES:-}"
 
@@ -356,6 +358,13 @@ build_r_arg_string() {
     r_args+=("module_Prophage_backend = \"${prophage_backend}\"")
   fi
 
+  if dnmb_truthy "$comparative"; then
+    r_args+=("comparative = TRUE")
+    if [ -n "$comparative_data_root" ]; then
+      r_args+=("comparative_data_root = \"${comparative_data_root}\"")
+    fi
+  fi
+
   local arg_string=""
   local arg
   for arg in "${r_args[@]}"; do
@@ -412,6 +421,32 @@ run_dnmb_default() {
   run_dnmb_in_dir /data
 }
 
+run_dnmb_comparative() {
+  local data_root="${1:-${DNMB_COMPARATIVE_DATA_ROOT:-/data}}"
+  local module_cpu="${DNMB_MODULE_CPU:-}"
+  local module_install="${DNMB_MODULE_INSTALL:-TRUE}"
+
+  if [ ! -d "$data_root" ]; then
+    echo "Error: comparative data root not found: $data_root" >&2
+    exit 1
+  fi
+
+  dnmb_rscript -e '
+    library(DNMB)
+    data_root <- normalizePath(Sys.getenv("DNMB_COMPARATIVE_DATA_ROOT", unset = commandArgs(TRUE)[1]), mustWork = TRUE)
+    module_cpu_raw <- Sys.getenv("DNMB_MODULE_CPU", unset = "")
+    module_cpu <- if (nzchar(module_cpu_raw)) suppressWarnings(as.integer(module_cpu_raw)) else NULL
+    module_install_raw <- Sys.getenv("DNMB_MODULE_INSTALL", unset = "TRUE")
+    module_install <- module_install_raw %in% c("1", "true", "TRUE", "yes", "YES", "on", "ON")
+    DNMB:::.dnmb_run_comparative_suite(
+      data_root = data_root,
+      module_cache_root = Sys.getenv("DNMB_CACHE_ROOT", unset = "/opt/dnmb/cache"),
+      module_install = module_install,
+      module_cpu = module_cpu
+    )
+  ' "$data_root"
+}
+
 maybe_drop_privileges "$@"
 
 if [ "$#" -eq 0 ]; then
@@ -419,6 +454,10 @@ if [ "$#" -eq 0 ]; then
 fi
 
 case "$1" in
+  comparative)
+    shift
+    run_dnmb_comparative "${1:-${DNMB_COMPARATIVE_DATA_ROOT:-/data}}"
+    ;;
   run|auto)
     shift
     if [ "$#" -eq 0 ]; then
