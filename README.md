@@ -207,11 +207,23 @@ embeddings, and PIDE runs an ESM-650M protein language model. Both run
 - When CUDA is detected, `run-dnmb.sh` also adds `--gpus all` to `docker run`
   so the container can reach the GPU, and exports `DNMB_CUDA=TRUE` for the R
   defaults to agree.
-- Force CPU-based execution only when you explicitly want it by setting
-  `DNMB_CUDA=1` or selecting the modules directly with
+- Force CPU-based execution only when you explicitly want the slow CPU path by
+  setting `DNMB_FORCE_CPU_HEAVY=1` or selecting the modules directly with
   `DNMB_MODULES=clean,pide` / `--modules clean,pide`.
 - Force-disable them with `DNMB_CUDA=0`, `DNMB_SKIP_MODULES=clean,pide`, or
   `--skip-modules clean,pide`.
+
+Direct Docker example for forcing the CPU path:
+
+```bash
+docker run --rm \
+  --platform linux/amd64 \
+  --user "$(id -u):$(id -g)" \
+  -e DNMB_FORCE_CPU_HEAVY=1 \
+  -v "$PWD:/data" \
+  -v "$HOME/.dnmb-cache:/opt/dnmb/cache" \
+  ghcr.io/jaeyoonsung/dnmbsuite:latest
+```
 
 ### Output location
 
@@ -446,7 +458,7 @@ Pass `auto_run_missing = FALSE` to render only what already exists.
   to the direct `docker run` command after creating that host folder once with:
   `mkdir -p "$HOME/.dnmb-cache/padloc-bootstrap"`
 - Advanced launcher environment variables:
-  `DNMB_MODULES`, `DNMB_SKIP_MODULES`, `DNMB_MODULE_CPU`, `DNMB_PROPHAGE_BACKEND`, `DNMB_CLEAN_PREVIOUS`, `DNMB_COMPARATIVE`, `DNMB_COMPARATIVE_DATA_ROOT`, `DNMB_AUTO_UPDATE`, `DNMB_AUTO_UPDATE_BRANCH`
+  `DNMB_MODULES`, `DNMB_SKIP_MODULES`, `DNMB_MODULE_CPU`, `DNMB_PROPHAGE_BACKEND`, `DNMB_CLEAN_PREVIOUS`, `DNMB_FORCE_CPU_HEAVY`, `DNMB_COMPARATIVE`, `DNMB_COMPARATIVE_DATA_ROOT`, `DNMB_AUTO_UPDATE`, `DNMB_AUTO_UPDATE_BRANCH`
 
 ## Compose
 

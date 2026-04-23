@@ -318,6 +318,7 @@ build_r_arg_string() {
   local skip_modules="${DNMB_SKIP_MODULES:-}"
   local cuda_available
   cuda_available="$(dnmb_detect_cuda)"
+  local force_cpu_heavy="${DNMB_FORCE_CPU_HEAVY:-${DNMB_FORCE_CPU_MODULES:-}}"
 
   MODULE_DBCAN=TRUE
   MODULE_MEROPS=TRUE
@@ -340,8 +341,12 @@ build_r_arg_string() {
 
   if [ "$cuda_available" = TRUE ]; then
     echo "[DNMBsuite] CUDA detected; CLEAN/PIDE enabled by default." >&2
+  elif dnmb_truthy "$force_cpu_heavy"; then
+    MODULE_CLEAN=TRUE
+    MODULE_PIDE=TRUE
+    echo "[DNMBsuite] CUDA not detected; forcing CPU execution for CLEAN/PIDE because DNMB_FORCE_CPU_HEAVY=1." >&2
   else
-    echo "[DNMBsuite] CUDA not detected; CLEAN/PIDE skipped by default. Override with DNMB_MODULES=clean,pide or DNMB_CUDA=1." >&2
+    echo "[DNMBsuite] CUDA not detected; CLEAN/PIDE skipped by default. Override with DNMB_FORCE_CPU_HEAVY=1 or DNMB_MODULES=clean,pide." >&2
   fi
 
   if [ -n "$modules" ]; then
