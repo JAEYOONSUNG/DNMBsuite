@@ -22,6 +22,18 @@ dnmb_truthy() {
   esac
 }
 
+dnmb_detect_cuda() {
+  case "${DNMB_CUDA:-}" in
+    1|true|TRUE|yes|YES|on|ON) echo TRUE; return ;;
+    0|false|FALSE|no|NO|off|OFF) echo FALSE; return ;;
+  esac
+  if command -v nvidia-smi >/dev/null 2>&1 && nvidia-smi -L >/dev/null 2>&1; then
+    echo TRUE
+  else
+    echo FALSE
+  fi
+}
+
 dnmb_rscript() {
   env -u R_HOME Rscript --vanilla "$@"
 }
@@ -223,6 +235,9 @@ normalize_module_name() {
     defensepredictor|defense-predictor) echo "defensepredictor" ;;
     rebasefinder|rebase) echo "rebasefinder" ;;
     iselement|iselements|is) echo "iselement" ;;
+    phispy) echo "phispy" ;;
+    virsorter2) echo "virsorter2" ;;
+    pide) echo "pide" ;;
     prophage) echo "prophage" ;;
     eggnog) echo "eggnog" ;;
     interproscan|interpro) echo "interproscan" ;;
@@ -247,7 +262,10 @@ set_all_modules() {
   MODULE_DEFENSEPREDICTOR="$value"
   MODULE_REBASEFINDER="$value"
   MODULE_ISELEMENT="$value"
-  MODULE_PROPHAGE="$value"
+  MODULE_PROPHAGE=FALSE
+  MODULE_PHISPY="$value"
+  MODULE_VIRSORTER2="$value"
+  MODULE_PIDE="$value"
   MODULE_EGGNOG="$value"
   MODULE_INTERPROSCAN="$value"
 }
@@ -268,6 +286,9 @@ set_module_flag() {
     defensepredictor) MODULE_DEFENSEPREDICTOR="$value" ;;
     rebasefinder) MODULE_REBASEFINDER="$value" ;;
     iselement) MODULE_ISELEMENT="$value" ;;
+    phispy) MODULE_PHISPY="$value" ;;
+    virsorter2) MODULE_VIRSORTER2="$value" ;;
+    pide) MODULE_PIDE="$value" ;;
     prophage) MODULE_PROPHAGE="$value" ;;
     eggnog) MODULE_EGGNOG="$value" ;;
     interproscan) MODULE_INTERPROSCAN="$value" ;;
@@ -295,10 +316,12 @@ build_r_arg_string() {
   local comparative_data_root="${DNMB_COMPARATIVE_DATA_ROOT:-}"
   local modules="${DNMB_MODULES:-}"
   local skip_modules="${DNMB_SKIP_MODULES:-}"
+  local cuda_available
+  cuda_available="$(dnmb_detect_cuda)"
 
   MODULE_DBCAN=TRUE
   MODULE_MEROPS=TRUE
-  MODULE_CLEAN=TRUE
+  MODULE_CLEAN="$cuda_available"
   MODULE_PAZY=TRUE
   MODULE_GAPMIND=TRUE
   MODULE_DEFENSEFINDER=TRUE
@@ -308,9 +331,18 @@ build_r_arg_string() {
   MODULE_DEFENSEPREDICTOR=TRUE
   MODULE_REBASEFINDER=TRUE
   MODULE_ISELEMENT=TRUE
-  MODULE_PROPHAGE=TRUE
+  MODULE_PROPHAGE=FALSE
+  MODULE_PHISPY=TRUE
+  MODULE_VIRSORTER2=FALSE
+  MODULE_PIDE="$cuda_available"
   MODULE_EGGNOG=TRUE
   MODULE_INTERPROSCAN=TRUE
+
+  if [ "$cuda_available" = TRUE ]; then
+    echo "[DNMBsuite] CUDA detected; CLEAN/PIDE enabled by default." >&2
+  else
+    echo "[DNMBsuite] CUDA not detected; CLEAN/PIDE skipped by default. Override with DNMB_MODULES=clean,pide or DNMB_CUDA=1." >&2
+  fi
 
   if [ -n "$modules" ]; then
     case "$(normalize_module_name "$modules")" in
@@ -347,6 +379,9 @@ build_r_arg_string() {
   r_args+=("module_REBASEfinder = ${MODULE_REBASEFINDER}")
   r_args+=("module_ISelement = ${MODULE_ISELEMENT}")
   r_args+=("module_Prophage = ${MODULE_PROPHAGE}")
+  r_args+=("module_PhiSpy = ${MODULE_PHISPY}")
+  r_args+=("module_VirSorter2 = ${MODULE_VIRSORTER2}")
+  r_args+=("module_PIDE = ${MODULE_PIDE}")
   r_args+=("module_EggNOG = ${MODULE_EGGNOG}")
   r_args+=("module_InterProScan = ${MODULE_INTERPROSCAN}")
 

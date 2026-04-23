@@ -200,14 +200,18 @@ Special values for `--modules`:
 embeddings, and PIDE runs an ESM-650M protein language model. Both run
 ~50–100× faster on a CUDA GPU than on CPU.
 
-- `run-dnmb.sh` probes `nvidia-smi -L` and turns `CLEAN`/`PIDE` on **only
-  when a CUDA GPU is detected**; otherwise they are skipped so a typical
-  laptop run completes in minutes rather than hours.
-- When CUDA is detected the script also adds `--gpus all` to
-  `docker run` so the container can reach the GPU, and exports
-  `DNMB_CUDA=TRUE` for the R defaults to agree.
-- Force the choice with `DNMB_CUDA=1` or `DNMB_CUDA=0`, or override on
-  the command line with `--modules clean,pide` / `--skip-modules clean,pide`.
+- The direct Docker entrypoint and `run-dnmb.sh` both probe `nvidia-smi -L`
+  and turn `CLEAN`/`PIDE` on **only when a CUDA GPU is detected**; otherwise
+  they are skipped so a typical laptop run completes in minutes rather than
+  hours.
+- When CUDA is detected, `run-dnmb.sh` also adds `--gpus all` to `docker run`
+  so the container can reach the GPU, and exports `DNMB_CUDA=TRUE` for the R
+  defaults to agree.
+- Force CPU-based execution only when you explicitly want it by setting
+  `DNMB_CUDA=1` or selecting the modules directly with
+  `DNMB_MODULES=clean,pide` / `--modules clean,pide`.
+- Force-disable them with `DNMB_CUDA=0`, `DNMB_SKIP_MODULES=clean,pide`, or
+  `--skip-modules clean,pide`.
 
 ### Output location
 
