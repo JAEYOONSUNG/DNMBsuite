@@ -11,9 +11,9 @@ services:
     container_name: dnmbsuite
     volumes:
       - ./data:/data
-      - ~/.dnmb-cache:/opt/dnmb/cache
+      - ~/.dnmb-cache:/opt/dnmb-cache
     environment:
-      - DNMB_CACHE_ROOT=/opt/dnmb/cache
+      - DNMB_CACHE_ROOT=/opt/dnmb-cache
       - DNMB_AUTO_UPDATE=${DNMB_AUTO_UPDATE:-0}
       - DNMB_AUTO_UPDATE_BRANCH=${DNMB_AUTO_UPDATE_BRANCH:-master}
     working_dir: /data
@@ -28,9 +28,9 @@ services:
     container_name: dnmbsuite-shell
     volumes:
       - ./data:/data
-      - ~/.dnmb-cache:/opt/dnmb/cache
+      - ~/.dnmb-cache:/opt/dnmb-cache
     environment:
-      - DNMB_CACHE_ROOT=/opt/dnmb/cache
+      - DNMB_CACHE_ROOT=/opt/dnmb-cache
       - DNMB_AUTO_UPDATE=${DNMB_AUTO_UPDATE:-0}
       - DNMB_AUTO_UPDATE_BRANCH=${DNMB_AUTO_UPDATE_BRANCH:-master}
     working_dir: /data

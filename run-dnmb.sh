@@ -341,7 +341,7 @@ fi
 
 R_ARGS=()
 R_ARGS+=("clean_previous = ${CLEAN_PREVIOUS}")
-R_ARGS+=("module_cache_root = \"/opt/dnmb/cache\"")
+R_ARGS+=("module_cache_root = \"/opt/dnmb-cache\"")
 R_ARGS+=("module_dbCAN = ${MODULE_DBCAN}")
 R_ARGS+=("module_MEROPS = ${MODULE_MEROPS}")
 R_ARGS+=("module_CLEAN = ${MODULE_CLEAN}")
@@ -390,7 +390,7 @@ if docker run --rm \
   -e "DNMB_AUTO_UPDATE_BRANCH=$DNMB_AUTO_UPDATE_BRANCH" \
   -e "DNMB_CUDA=$CUDA_AVAILABLE" \
   -v "$OUTPUT_ABS:/data" \
-  -v "$CACHE_ROOT:/opt/dnmb/cache" \
+  -v "$CACHE_ROOT:/opt/dnmb-cache" \
   --ulimit stack=67108864 \
   "$IMAGE" \
   env -u R_HOME Rscript --vanilla -e "$R_EXPR"; then

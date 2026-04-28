@@ -98,7 +98,7 @@ dnmb_prepare_runtime_env() {
 }
 
 if [ "${DNMB_ENTRYPOINT_SKIP_ROOT_SETUP:-0}" != "1" ]; then
-  mkdir -p "${DNMB_CACHE_ROOT:-/opt/dnmb/cache}"
+  mkdir -p "${DNMB_CACHE_ROOT:-/opt/dnmb-cache}"
 
   if [ -z "${JAVA_HOME:-}" ] && [ -d "/usr/lib/jvm/java-11-openjdk-amd64" ]; then
     export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
@@ -145,25 +145,25 @@ if [ "${DNMB_ENTRYPOINT_SKIP_ROOT_SETUP:-0}" != "1" ]; then
     fi
   fi
 
-  CLEAN_CACHE_ROOT="${DNMB_CACHE_ROOT:-/opt/dnmb/cache}/db_modules/clean/split100"
+  CLEAN_CACHE_ROOT="${DNMB_CACHE_ROOT:-/opt/dnmb-cache}/db_modules/clean/split100"
   if [ ! -x "$CLEAN_CACHE_ROOT/conda_env/bin/python" ] && [ -f /opt/dnmb-seed/clean/split100/conda_env.tar.gz ]; then
     mkdir -p "$CLEAN_CACHE_ROOT"
     tar -xzf /opt/dnmb-seed/clean/split100/conda_env.tar.gz -C "$CLEAN_CACHE_ROOT"
   fi
 
-  DEFENSEFINDER_CACHE_ROOT="${DNMB_CACHE_ROOT:-/opt/dnmb/cache}/db_modules/defensefinder"
+  DEFENSEFINDER_CACHE_ROOT="${DNMB_CACHE_ROOT:-/opt/dnmb-cache}/db_modules/defensefinder"
   if [ ! -x "$DEFENSEFINDER_CACHE_ROOT/current/venv/bin/defense-finder" ] && [ -f /opt/dnmb-seed/defensefinder/current.tar.gz ]; then
     mkdir -p "$DEFENSEFINDER_CACHE_ROOT"
     tar -xzf /opt/dnmb-seed/defensefinder/current.tar.gz -C "$DEFENSEFINDER_CACHE_ROOT"
   fi
 
-  DBAPIS_CACHE_ROOT="${DNMB_CACHE_ROOT:-/opt/dnmb/cache}/db_modules/dbapis"
+  DBAPIS_CACHE_ROOT="${DNMB_CACHE_ROOT:-/opt/dnmb-cache}/db_modules/dbapis"
   if [ ! -f "$DBAPIS_CACHE_ROOT/current/data_download/dbAPIS.hmm" ] && [ -f /opt/dnmb-seed/dbapis/current.tar.gz ]; then
     mkdir -p "$DBAPIS_CACHE_ROOT"
     tar -xzf /opt/dnmb-seed/dbapis/current.tar.gz -C "$DBAPIS_CACHE_ROOT"
   fi
 
-  ACRFINDER_CACHE_ROOT="${DNMB_CACHE_ROOT:-/opt/dnmb/cache}/db_modules/acrfinder"
+  ACRFINDER_CACHE_ROOT="${DNMB_CACHE_ROOT:-/opt/dnmb-cache}/db_modules/acrfinder"
   if [ ! -x "$ACRFINDER_CACHE_ROOT/current/venv/bin/python" ] && [ -f /opt/dnmb-seed/acrfinder/current.tar.gz ]; then
     mkdir -p "$ACRFINDER_CACHE_ROOT"
     tar -xzf /opt/dnmb-seed/acrfinder/current.tar.gz -C "$ACRFINDER_CACHE_ROOT"
@@ -178,7 +178,7 @@ if [ "${DNMB_ENTRYPOINT_SKIP_ROOT_SETUP:-0}" != "1" ]; then
     fi
   fi
 
-  EGGNOG_CACHE="${DNMB_CACHE_ROOT:-/opt/dnmb/cache}/db_modules/eggnog/data"
+  EGGNOG_CACHE="${DNMB_CACHE_ROOT:-/opt/dnmb-cache}/db_modules/eggnog/data"
   if [ -d "$EGGNOG_CACHE" ]; then
     EMAPPER_DATA=$(python3 -c "import os,eggnogmapper;print(os.path.join(os.path.dirname(eggnogmapper.__file__),'data'))" 2>/dev/null || true)
     if [ -n "$EMAPPER_DATA" ] && [ ! -L "$EMAPPER_DATA" ]; then
@@ -370,7 +370,7 @@ build_r_arg_string() {
 
   local r_args=()
   r_args+=("clean_previous = ${clean_previous}")
-  r_args+=("module_cache_root = \"/opt/dnmb/cache\"")
+  r_args+=("module_cache_root = \"/opt/dnmb-cache\"")
   r_args+=("module_dbCAN = ${MODULE_DBCAN}")
   r_args+=("module_MEROPS = ${MODULE_MEROPS}")
   r_args+=("module_CLEAN = ${MODULE_CLEAN}")
@@ -480,7 +480,7 @@ run_dnmb_comparative() {
     module_install <- module_install_raw %in% c("1", "true", "TRUE", "yes", "YES", "on", "ON")
     DNMB:::.dnmb_run_comparative_suite(
       data_root = data_root,
-      module_cache_root = Sys.getenv("DNMB_CACHE_ROOT", unset = "/opt/dnmb/cache"),
+      module_cache_root = Sys.getenv("DNMB_CACHE_ROOT", unset = "/opt/dnmb-cache"),
       module_install = module_install,
       module_cpu = module_cpu
     )
