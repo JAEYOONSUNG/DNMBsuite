@@ -8,7 +8,7 @@ ARG DNMB_REF=master
 ARG DNMB_SOURCE=github
 
 ENV DEBIAN_FRONTEND=noninteractive
-ENV DNMB_CACHE_ROOT=/opt/dnmb/cache
+ENV DNMB_CACHE_ROOT=/opt/dnmb-cache
 ENV DNMB_DEFENSEFINDER_CASFINDER_DIR=/root/.macsyfinder/models/CasFinder
 ENV DNMB_DEFENSEFINDER_REPO_DIR=/opt/vendor/defense-finder
 ENV DNMB_DBAPIS_REPO_DIR=/opt/vendor/dbAPIS

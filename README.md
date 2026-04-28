@@ -42,7 +42,7 @@ cd [/path/to/folder/with/genbank]
 docker run --rm \
   --user "$(id -u):$(id -g)" \
   -v "$PWD:/data" \
-  -v "$HOME/.dnmb-cache:/opt/dnmb/cache" \
+  -v "$HOME/.dnmb-cache:/opt/dnmb-cache" \
   ghcr.io/jaeyoonsung/dnmbsuite:latest
 ```
 
@@ -52,7 +52,7 @@ Run a single GenBank file explicitly:
 docker run --rm \
   --user "$(id -u):$(id -g)" \
   -v /path/to/parent-dir:/data \
-  -v "$HOME/.dnmb-cache:/opt/dnmb/cache" \
+  -v "$HOME/.dnmb-cache:/opt/dnmb-cache" \
   ghcr.io/jaeyoonsung/dnmbsuite:latest \
   /data/GCF_030369615.1.gbff
 ```
@@ -65,7 +65,7 @@ docker run --rm \
   -e DNMB_MODULES=defensefinder,padloc,defensepredictor,iselement,prophage \
   -e DNMB_MODULE_CPU=8 \
   -v "$PWD:/data" \
-  -v "$HOME/.dnmb-cache:/opt/dnmb/cache" \
+  -v "$HOME/.dnmb-cache:/opt/dnmb-cache" \
   ghcr.io/jaeyoonsung/dnmbsuite:latest
 ```
 
@@ -77,7 +77,7 @@ docker run --rm \
   -e DNMB_MODULES=defensefinder,dbapis,acrfinder \
   -e DNMB_MODULE_CPU=8 \
   -v "$PWD:/data" \
-  -v "$HOME/.dnmb-cache:/opt/dnmb/cache" \
+  -v "$HOME/.dnmb-cache:/opt/dnmb-cache" \
   ghcr.io/jaeyoonsung/dnmbsuite:latest
 ```
 
@@ -89,14 +89,14 @@ docker run --rm \
   -e DNMB_SKIP_MODULES=interproscan,eggnog \
   -e DNMB_MODULE_CPU=8 \
   -v "$PWD:/data" \
-  -v "$HOME/.dnmb-cache:/opt/dnmb/cache" \
+  -v "$HOME/.dnmb-cache:/opt/dnmb-cache" \
   ghcr.io/jaeyoonsung/dnmbsuite:latest
 ```
 
 What this does:
 
 - uses the working directory as `/data`
-- mounts `~/.dnmb-cache` to `/opt/dnmb/cache`
+- mounts `~/.dnmb-cache` to `/opt/dnmb-cache`
 - detects `*.gb`, `*.gbk`, or `*.gbff` automatically in folder mode
 - writes outputs back into the same host folder
 - keeps raw InterProScan TSV outputs inside `dnmb_interproscan/`
@@ -157,7 +157,7 @@ What this launcher does:
 
 - pulls `ghcr.io/jaeyoonsung/dnmbsuite:latest` automatically when missing
 - mounts the output directory to `/data`
-- mounts `~/.dnmb-cache` to `/opt/dnmb/cache`
+- mounts `~/.dnmb-cache` to `/opt/dnmb-cache`
 - copies the input GenBank file into the output directory when needed
 - runs the same built-in container launcher
 - keeps the bundled DNMB package fixed unless you explicitly opt in to `DNMB_AUTO_UPDATE=1`
@@ -221,7 +221,7 @@ docker run --rm \
   --user "$(id -u):$(id -g)" \
   -e DNMB_FORCE_CPU_HEAVY=1 \
   -v "$PWD:/data" \
-  -v "$HOME/.dnmb-cache:/opt/dnmb/cache" \
+  -v "$HOME/.dnmb-cache:/opt/dnmb-cache" \
   ghcr.io/jaeyoonsung/dnmbsuite:latest
 ```
 
@@ -380,7 +380,7 @@ docker run --rm \
   --user "$(id -u):$(id -g)" \
   -e DNMB_MODULE_CPU=8 \
   -v "$PWD/data:/data" \
-  -v "$HOME/.dnmb-cache:/opt/dnmb/cache" \
+  -v "$HOME/.dnmb-cache:/opt/dnmb-cache" \
   ghcr.io/jaeyoonsung/dnmbsuite:latest \
   comparative /data
 ```
@@ -404,7 +404,7 @@ docker run --rm \
   -e DNMB_COMPARATIVE_DATA_ROOT=/data \
   -e DNMB_MODULE_CPU=8 \
   -v "$(dirname "$PWD"):/data" \
-  -v "$HOME/.dnmb-cache:/opt/dnmb/cache" \
+  -v "$HOME/.dnmb-cache:/opt/dnmb-cache" \
   ghcr.io/jaeyoonsung/dnmbsuite:latest \
   /data/$(basename "$PWD")
 ```
@@ -510,7 +510,7 @@ DNMBsuite expects a shared host cache at:
 This directory is mounted to:
 
 ```text
-/opt/dnmb/cache
+/opt/dnmb-cache
 ```
 
 inside the container, and `DNMB_CACHE_ROOT` is set automatically.
