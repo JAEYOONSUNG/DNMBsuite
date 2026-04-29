@@ -17,6 +17,8 @@ Only one thing is required from the user:
 - records module metadata in the shared cache so stale installs can be refreshed
 - reuses the shared cache on later runs
 
+<img width="2172" height="2980" alt="DNMB_v1 0 2_visualizations" src="https://github.com/user-attachments/assets/7fc97481-4170-46e5-87d1-7fe36f3e7d2b" />
+
 ## Recommended Quick Start
 
 The simplest way to use DNMBsuite is the published Docker image.
