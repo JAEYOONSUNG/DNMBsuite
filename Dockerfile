@@ -18,6 +18,7 @@ ENV R_LIBS=/opt/biotools/lib/R/library
 ENV LANG=en_US.UTF-8
 ENV LC_ALL=en_US.UTF-8
 ENV MACSY_HOME=/opt/vendor/acrfinder/dependencies/CRISPRCasFinder/macsyfinder-1.0.5
+ENV DNMB_VMATCH_SEL392=/opt/vendor/acrfinder/dependencies/CRISPRCasFinder/sel392v2.so
 
 RUN apt-get -o Acquire::Retries=5 update \
     && apt-get -o Acquire::Retries=5 install -y --fix-missing --no-install-recommends \
@@ -127,6 +128,9 @@ RUN set -eux; \
       cp "${CRISPR_DIR}/src/vmatch-2.3.0-Linux_x86_64-64bit/mkvtree" "${CRISPR_DIR}/bin/mkvtree2"; \
       cp "${CRISPR_DIR}/src/vmatch-2.3.0-Linux_x86_64-64bit/vsubseqselect" "${CRISPR_DIR}/bin/vsubseqselect2"; \
     fi; \
+    test -f "${CRISPR_DIR}/sel392v2.so"; \
+    mkdir -p /usr/lib/vmatch/SELECT; \
+    ln -sf "${CRISPR_DIR}/sel392v2.so" /usr/lib/vmatch/SELECT/sel392.so; \
     rm -rf "${CRISPR_DIR}/macsyfinder-1.0.5"; \
     mkdir -p "${CRISPR_DIR}/macsyfinder-1.0.5"; \
     curl -fsSL https://codeload.github.com/gem-pasteur/macsyfinder/tar.gz/refs/tags/macsyfinder-1.0.5 \

@@ -164,9 +164,13 @@ if [ "${DNMB_ENTRYPOINT_SKIP_ROOT_SETUP:-0}" != "1" ]; then
   fi
 
   ACRFINDER_CACHE_ROOT="${DNMB_CACHE_ROOT:-/opt/dnmb-cache}/db_modules/acrfinder"
-  if [ ! -x "$ACRFINDER_CACHE_ROOT/current/venv/bin/python" ] && [ -f /opt/dnmb-seed/acrfinder/current.tar.gz ]; then
-    mkdir -p "$ACRFINDER_CACHE_ROOT"
-    tar -xzf /opt/dnmb-seed/acrfinder/current.tar.gz -C "$ACRFINDER_CACHE_ROOT"
+  if [ -f /opt/dnmb-seed/acrfinder/current.tar.gz ]; then
+    if [ ! -x "$ACRFINDER_CACHE_ROOT/current/venv/bin/python" ] || \
+       ! "$ACRFINDER_CACHE_ROOT/current/venv/bin/python" -c "import numpy, Bio; from Bio import SeqIO" >/dev/null 2>&1; then
+      rm -rf "$ACRFINDER_CACHE_ROOT/current"
+      mkdir -p "$ACRFINDER_CACHE_ROOT"
+      tar -xzf /opt/dnmb-seed/acrfinder/current.tar.gz -C "$ACRFINDER_CACHE_ROOT"
+    fi
   fi
 
   if [ -x "$CLEAN_CACHE_ROOT/conda_env/bin/python" ] && [ -f "$CLEAN_CACHE_ROOT/CLEAN/app/build.py" ]; then
