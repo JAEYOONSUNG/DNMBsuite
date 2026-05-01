@@ -43,6 +43,7 @@ cd [/path/to/folder/with/genbank]
 
 docker run --rm \
   --user "$(id -u):$(id -g)" \
+  --platform linux/amd64 \
   -v "$PWD:/data" \
   -v "$HOME/.dnmb-cache:/opt/dnmb-cache" \
   ghcr.io/jaeyoonsung/dnmbsuite:latest
