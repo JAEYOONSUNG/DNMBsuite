@@ -95,6 +95,23 @@ RUN R -e ' \
       "tidyverse" \
     )); \
 '
+RUN R -e ' \
+    cran_repo <- "https://cran.r-project.org"; \
+    options(repos = c(CRAN = cran_repo), download.file.method = "libcurl", timeout = 600, Ncpus = 1); \
+    required <- c( \
+      "remotes", "rlang", "vctrs", "tibble", "ggplot2", "sp", "pixmap", \
+      "RcppArmadillo", "ade4", "seqinr", "dplyr", "plyr", "tidyr", \
+      "data.table", "reshape2", "readr", "openxlsx", "stringr", "jsonlite", \
+      "gtools", "cowplot", "gggenes", "ggrepel", "ggtext", "ggseqlogo", \
+      "ggforce", "gridExtra", "scales", "Peptides", "circlize", "ggplotify", \
+      "testthat", "ggnewscale", "patchwork", "gridBase", "gtable", \
+      "colorspace", "tidyverse" \
+    ); \
+    missing <- required[!vapply(required, requireNamespace, logical(1), quietly = TRUE)]; \
+    if (length(missing)) install.packages(missing); \
+    missing <- required[!vapply(required, requireNamespace, logical(1), quietly = TRUE)]; \
+    if (length(missing)) stop("Missing R packages: ", paste(missing, collapse = ", ")); \
+'
 RUN export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64 \
     && export LD_LIBRARY_PATH=/usr/lib/jvm/java-11-openjdk-amd64/lib/server:${LD_LIBRARY_PATH} \
     && R CMD javareconf \
