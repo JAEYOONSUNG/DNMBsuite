@@ -202,6 +202,10 @@ RUN apt-get -o Acquire::Retries=5 update \
     && command -v RNAfold >/dev/null \
     && /opt/biotools/bin/python -c 'import progressbar'
 
+COPY docker/verify-runtime.sh /usr/local/bin/verify-runtime.sh
+RUN chmod +x /usr/local/bin/verify-runtime.sh \
+    && /usr/local/bin/verify-runtime.sh
+
 WORKDIR /data
 
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
