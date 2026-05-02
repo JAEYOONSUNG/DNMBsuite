@@ -171,7 +171,9 @@ ENV PATH=/opt/biotools/bin:/opt/vendor/acrfinder/bin:/opt/vendor/acrfinder/depen
 
 COPY docker/local-dnmb-snapshot/ /tmp/DNMB-local/
 
-RUN if [ "${DNMB_SOURCE}" = "local" ]; then \
+ARG DNMB_INSTALL_CACHE_BUST=0
+RUN echo "DNMB install cache bust: ${DNMB_INSTALL_CACHE_BUST}" >/dev/null \
+    && if [ "${DNMB_SOURCE}" = "local" ]; then \
       R -e 'remotes::install_local("/tmp/DNMB-local", dependencies = FALSE, upgrade = "never")'; \
     else \
       git clone "${DNMB_REPO}" /tmp/DNMB \
