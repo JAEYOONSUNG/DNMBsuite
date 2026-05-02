@@ -61,20 +61,7 @@ RUN /opt/miniforge/bin/conda create -y -p /opt/biotools \
     perl-dbi perl-lwp-simple perl-dbd-sqlite \
     && /opt/miniforge/bin/conda clean -afy
 
-RUN /opt/miniforge/bin/conda create -y -p /opt/promotech \
-    -c conda-forge -c bioconda \
-    python=3.8 \
-    numpy=1.19.5 \
-    pandas=1.1.5 \
-    joblib=0.17.0 \
-    scikit-learn=0.23.2 \
-    biopython=1.78 \
-    progressbar2 \
-    && /opt/miniforge/bin/conda clean -afy \
-    && /opt/promotech/bin/python -c 'import numpy, pandas, joblib, Bio, progressbar, sklearn; assert sklearn.__version__.startswith("0.23")'
-
 ENV PATH="/opt/biotools/bin:${PATH}"
-ENV DNMB_PROMOTECH_PYTHON=/opt/promotech/bin/python
 
 RUN mkdir -p ${DNMB_CACHE_ROOT}/db_modules/clean/split100 \
     && /opt/biotools/bin/python -m venv ${DNMB_CACHE_ROOT}/db_modules/clean/split100/conda_env \
@@ -211,12 +198,31 @@ RUN mkdir -p /data /results ${DNMB_CACHE_ROOT} /opt/biotools/data /opt/biotools/
 RUN apt-get -o Acquire::Retries=5 update \
     && apt-get -o Acquire::Retries=5 install -y --no-install-recommends \
     vienna-rna \
+    bzip2 \
     libbio-perl-perl libbio-perl-run-perl libbio-tools-run-alignment-clustalw-perl \
     libdate-calc-perl libjson-parse-perl \
     && apt-get clean && rm -rf /var/lib/apt/lists/* \
     && /opt/biotools/bin/python -m pip install --no-cache-dir progressbar2 \
     && command -v RNAfold >/dev/null \
     && /opt/biotools/bin/python -c 'import progressbar'
+
+RUN mkdir -p /tmp/micromamba \
+    && curl -fsSL https://micro.mamba.pm/api/micromamba/linux-64/latest -o /tmp/micromamba.tar.bz2 \
+    && tar -xjf /tmp/micromamba.tar.bz2 -C /tmp/micromamba bin/micromamba \
+    && /tmp/micromamba/bin/micromamba create -y -p /opt/promotech \
+      -c conda-forge -c bioconda \
+      python=3.8 \
+      numpy=1.19.5 \
+      pandas=1.1.5 \
+      joblib=0.17.0 \
+      scikit-learn=0.23.2 \
+      biopython=1.78 \
+      progressbar2 \
+    && /tmp/micromamba/bin/micromamba clean -afy \
+    && rm -rf /tmp/micromamba /tmp/micromamba.tar.bz2 /root/.cache/mamba \
+    && /opt/promotech/bin/python -c 'import numpy, pandas, joblib, Bio, progressbar, sklearn; assert sklearn.__version__.startswith("0.23")'
+
+ENV DNMB_PROMOTECH_PYTHON=/opt/promotech/bin/python
 
 COPY docker/verify-runtime.sh /usr/local/bin/verify-runtime.sh
 RUN chmod +x /usr/local/bin/verify-runtime.sh \
