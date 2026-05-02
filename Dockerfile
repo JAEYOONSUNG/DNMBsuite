@@ -61,7 +61,20 @@ RUN /opt/miniforge/bin/conda create -y -p /opt/biotools \
     perl-dbi perl-lwp-simple perl-dbd-sqlite \
     && /opt/miniforge/bin/conda clean -afy
 
+RUN /opt/miniforge/bin/conda create -y -p /opt/promotech \
+    -c conda-forge -c bioconda \
+    python=3.8 \
+    numpy=1.19.5 \
+    pandas=1.1.5 \
+    joblib=0.17.0 \
+    scikit-learn=0.23.2 \
+    biopython=1.78 \
+    progressbar2 \
+    && /opt/miniforge/bin/conda clean -afy \
+    && /opt/promotech/bin/python -c 'import numpy, pandas, joblib, Bio, progressbar, sklearn; assert sklearn.__version__.startswith("0.23")'
+
 ENV PATH="/opt/biotools/bin:${PATH}"
+ENV DNMB_PROMOTECH_PYTHON=/opt/promotech/bin/python
 
 RUN mkdir -p ${DNMB_CACHE_ROOT}/db_modules/clean/split100 \
     && /opt/biotools/bin/python -m venv ${DNMB_CACHE_ROOT}/db_modules/clean/split100/conda_env \
