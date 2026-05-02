@@ -25,6 +25,18 @@ for mod in mods:
     __import__(mod)
 PY
 
+test -x "${DNMB_PROMOTECH_PYTHON}"
+"${DNMB_PROMOTECH_PYTHON}" - <<'PY'
+import joblib
+import numpy
+import pandas
+import progressbar
+import sklearn
+from Bio import SeqIO
+
+assert sklearn.__version__.startswith("0.23"), sklearn.__version__
+PY
+
 Rscript - <<'RS'
 required <- c(
   "DNMB", "dplyr", "ggplot2", "ggtext", "openxlsx",
@@ -45,6 +57,22 @@ if (any(promotech_bad)) {
     paste(promotech_status$detail[promotech_bad], collapse = "; "),
     call. = FALSE
   )
+}
+
+promotech_python <- DNMB:::.dnmb_promotech_resolve_python("python3")
+promotech_model <- file.path(
+  Sys.getenv("DNMB_CACHE_ROOT"),
+  "db_modules", "promotech", "current", "Promotech", "models", "RF-HOT.model"
+)
+if (file.exists(promotech_model)) {
+  model_load <- DNMB:::dnmb_run_external(
+    promotech_python,
+    args = c("-c", "import joblib, sys; joblib.load(sys.argv[1])", promotech_model),
+    required = FALSE
+  )
+  if (!isTRUE(model_load$ok)) {
+    stop("Promotech model load check failed: ", model_load$error, call. = FALSE)
+  }
 }
 
 acr_module <- DNMB:::dnmb_acrfinder_get_module(cache_root = Sys.getenv("DNMB_CACHE_ROOT"), required = TRUE)
