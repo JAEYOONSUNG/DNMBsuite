@@ -196,7 +196,10 @@ RUN mkdir -p /opt/dnmb-seed/acrfinder \
 RUN mkdir -p /data /results ${DNMB_CACHE_ROOT} /opt/biotools/data /opt/biotools/test
 
 RUN apt-get -o Acquire::Retries=5 update \
-    && apt-get -o Acquire::Retries=5 install -y --no-install-recommends vienna-rna \
+    && apt-get -o Acquire::Retries=5 install -y --no-install-recommends \
+    vienna-rna \
+    libbio-perl-perl libbio-perl-run-perl libbio-tools-run-alignment-clustalw-perl \
+    libdate-calc-perl libjson-parse-perl \
     && apt-get clean && rm -rf /var/lib/apt/lists/* \
     && /opt/biotools/bin/python -m pip install --no-cache-dir progressbar2 \
     && command -v RNAfold >/dev/null \
