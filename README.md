@@ -42,6 +42,7 @@ Run from a folder that already contains one or more GenBank files:
 cd [/path/to/folder/with/genbank]
 
 docker run --rm \
+  --pull always \
   --user "$(id -u):$(id -g)" \
   --platform linux/amd64 \
   -v "$PWD:/data" \
@@ -53,7 +54,9 @@ Run a single GenBank file explicitly:
 
 ```bash
 docker run --rm \
+  --pull always \
   --user "$(id -u):$(id -g)" \
+  --platform linux/amd64 \
   -v /path/to/parent-dir:/data \
   -v "$HOME/.dnmb-cache:/opt/dnmb-cache" \
   ghcr.io/jaeyoonsung/dnmbsuite:latest \
@@ -64,7 +67,9 @@ Run selected modules only with direct Docker:
 
 ```bash
 docker run --rm \
+  --pull always \
   --user "$(id -u):$(id -g)" \
+  --platform linux/amd64 \
   -e DNMB_MODULES=defensefinder,padloc,defensepredictor,iselement,prophage \
   -e DNMB_MODULE_CPU=8 \
   -v "$PWD:/data" \
@@ -76,7 +81,9 @@ Run the anti-defense stack only with direct Docker:
 
 ```bash
 docker run --rm \
+  --pull always \
   --user "$(id -u):$(id -g)" \
+  --platform linux/amd64 \
   -e DNMB_MODULES=defensefinder,dbapis,acrfinder \
   -e DNMB_MODULE_CPU=8 \
   -v "$PWD:/data" \
@@ -88,7 +95,9 @@ Run while disabling selected modules with direct Docker:
 
 ```bash
 docker run --rm \
+  --pull always \
   --user "$(id -u):$(id -g)" \
+  --platform linux/amd64 \
   -e DNMB_SKIP_MODULES=interproscan,eggnog \
   -e DNMB_MODULE_CPU=8 \
   -v "$PWD:/data" \
@@ -104,8 +113,9 @@ What this does:
 - writes outputs back into the same host folder
 - keeps raw InterProScan TSV outputs inside `dnmb_interproscan/`
 - on Linux, runs as your current host UID/GID in the direct `docker run` examples so output and cache files stay writable by you
-- on arm64 hosts, add `--platform linux/amd64` to the direct `docker run` command because the published image is currently `amd64`
-- lets you control module selection through `DNMB_MODULES`, `DNMB_SKIP_MODULES`, `DNMB_MODULE_CPU`, `DNMB_PROPHAGE_BACKEND`, `DNMB_CLEAN_PREVIOUS`, `DNMB_COMPARATIVE`, and `DNMB_COMPARATIVE_DATA_ROOT`
+- uses `--platform linux/amd64` in the direct examples because the published image is currently `amd64`; this avoids platform mismatch warnings on Apple silicon / other arm64 hosts
+- uses `--pull always` in the direct examples so `latest` resolves to the newest pushed image instead of a stale local copy
+- lets you control module selection through `DNMB_MODULES`, `DNMB_SKIP_MODULES`, `DNMB_MODULE_CPU`, `DNMB_PROPHAGE_BACKEND`, `DNMB_CLEAN_PREVIOUS`, `DNMB_COMPARATIVE`, `DNMB_COMPARATIVE_DATA_ROOT`, and Promotech chunking through `DNMB_PROMOTECH_CHUNK_SIZE`
 
 ## Optional Shell Launcher
 
@@ -222,6 +232,7 @@ Direct Docker example for forcing the CPU path:
 
 ```bash
 docker run --rm \
+  --pull always \
   --platform linux/amd64 \
   --user "$(id -u):$(id -g)" \
   -e DNMB_FORCE_CPU_HEAVY=1 \
@@ -229,6 +240,30 @@ docker run --rm \
   -v "$HOME/.dnmb-cache:/opt/dnmb-cache" \
   ghcr.io/jaeyoonsung/dnmbsuite:latest
 ```
+
+### Module runtime notes
+
+- `dbCAN` runs the full `run_dbcan` workflow when available, including CGC
+  outputs such as `dnmb_module_dbcan/run_dbcan/cgc_standard_out.tsv`,
+  `substrate_prediction.tsv`, and `overview.tsv`. DNMB records whether
+  `run_dbcan` was available in the stage-cache signature, so older HMM-only
+  outputs are not reused as if they were full dbCAN results. If a genome
+  genuinely has no CGC calls, the dbCAN CGC plot can be skipped with a
+  no-data message.
+- `AcrFinder` runs through its bundled runtime environment. A completed
+  `0 hits` run means no AcrFinder hits were detected for that input, not that
+  the module failed.
+- `Promotech` uses a dedicated Python runtime pinned for the upstream RF-HOT
+  model (`scikit-learn 0.23.x`). Long contigs are split into overlapping
+  chunks before live prediction so upstream Promotech does not create very
+  large per-contig intermediate `.data` files. DNMB then converts chunk
+  coordinates back to the original contig coordinates and removes the
+  intermediate `.data` files after each chunk. The default chunk size is
+  `500000` bp and can be changed with `DNMB_PROMOTECH_CHUNK_SIZE`.
+- Promotech stage-cache reuse requires the expected per-subject
+  `genome_predictions.csv` files to exist; a leftover summary
+  `promotech_predictions.tsv` alone is not treated as proof of a successful
+  live run.
 
 ### Output location
 
@@ -383,6 +418,7 @@ From the parent directory that contains `data/`:
 
 ```bash
 docker run --rm \
+  --pull always \
   --platform linux/amd64 \
   --user "$(id -u):$(id -g)" \
   -e DNMB_MODULE_CPU=8 \
@@ -405,6 +441,7 @@ from a focal genome folder, use:
 cd /path/to/data/genome_1
 
 docker run --rm \
+  --pull always \
   --platform linux/amd64 \
   --user "$(id -u):$(id -g)" \
   -e DNMB_COMPARATIVE=1 \
@@ -465,7 +502,7 @@ Pass `auto_run_missing = FALSE` to render only what already exists.
   to the direct `docker run` command after creating that host folder once with:
   `mkdir -p "$HOME/.dnmb-cache/padloc-bootstrap"`
 - Advanced launcher environment variables:
-  `DNMB_MODULES`, `DNMB_SKIP_MODULES`, `DNMB_MODULE_CPU`, `DNMB_PROPHAGE_BACKEND`, `DNMB_CLEAN_PREVIOUS`, `DNMB_FORCE_CPU_HEAVY`, `DNMB_COMPARATIVE`, `DNMB_COMPARATIVE_DATA_ROOT`, `DNMB_AUTO_UPDATE`, `DNMB_AUTO_UPDATE_BRANCH`
+  `DNMB_MODULES`, `DNMB_SKIP_MODULES`, `DNMB_MODULE_CPU`, `DNMB_PROPHAGE_BACKEND`, `DNMB_CLEAN_PREVIOUS`, `DNMB_FORCE_CPU_HEAVY`, `DNMB_PROMOTECH_CHUNK_SIZE`, `DNMB_COMPARATIVE`, `DNMB_COMPARATIVE_DATA_ROOT`, `DNMB_AUTO_UPDATE`, `DNMB_AUTO_UPDATE_BRANCH`
 
 ## Compose
 
