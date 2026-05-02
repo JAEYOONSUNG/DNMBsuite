@@ -218,6 +218,7 @@ RUN mkdir -p /tmp/micromamba \
       scikit-learn=0.23.2 \
       biopython=1.78 \
       progressbar2 \
+      'python-utils<3.9' \
     && /tmp/micromamba/bin/micromamba clean -afy \
     && rm -rf /tmp/micromamba /tmp/micromamba.tar.bz2 /root/.cache/mamba \
     && /opt/promotech/bin/python -c 'import numpy, pandas, joblib, Bio, progressbar, sklearn; assert sklearn.__version__.startswith("0.23")'
