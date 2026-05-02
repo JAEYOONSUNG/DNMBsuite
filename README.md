@@ -179,6 +179,8 @@ Supported module names for `--modules` and `--skip-modules`:
 - `defensefinder`
 - `dbapis`
 - `acrfinder`
+- `promotech`
+- `mrnacal`
 - `padloc`
 - `defensepredictor`
 - `merops`
@@ -244,6 +246,8 @@ data/
 ├── dnmb_module_clean/
 ├── dnmb_module_dbapis/
 ├── dnmb_module_defensefinder/
+├── dnmb_module_promotech/
+├── dnmb_module_mrnacal/
 ├── dnmb_module_padloc/
 ├── dnmb_module_defensepredictor/
 ├── dnmb_module_eggnog/
@@ -580,6 +584,15 @@ Please, cite also the underlying algorithm/database if it was used for the searc
                         Florian Tesson, Alexandre Herve, Ernest Mordret, Marie Touchon, Camille d'Humieres, Jean Cury,
                         Aude Bernheim. 2022. Nature Communications 13:2561. https://doi.org/10.1038/s41467-022-30269-9
 
+  [PADLOC]              Identification and classification of antiviral defence systems in bacteria and archaea
+                        with PADLOC reveals new system types. Leighton J. Payne, Thomas C. Todeschini, Yi Wu,
+                        Benjamin J. Perry, Clive W. Ronson, Peter C. Fineran, Franklin L. Nobrega, Simon A. Jackson.
+                        2021. Nucleic Acids Research 49(19):10868-10878. https://doi.org/10.1093/nar/gkab883
+
+  [DefensePredictor]    DefensePredictor: A machine learning model to discover prokaryotic immune systems.
+                        Peter C. DeWeirdt, Emily M. Mahoney, Michael T. Laub. 2026. Science 392(6793):eadv7924.
+                        https://doi.org/10.1126/science.adv7924
+
   [REBASE]              REBASE-a database for DNA restriction and modification: enzymes, genes and genomes.
                         Richard J. Roberts, Tamas Vincze, Janos Posfai, Dana Macelis. 2010. Nucleic Acids Research
                         38(Database issue):D234-D236. https://doi.org/10.1093/nar/gkp874
@@ -600,6 +613,10 @@ Please, cite also the underlying algorithm/database if it was used for the searc
   [dbCAN]               dbCAN3: automated carbohydrate-active enzyme and substrate annotation.
                         Jinfang Zheng, Qiwei Ge, Yuchen Yan, Xinpeng Zhang, Le Huang, Yanbin Yin. 2023.
                         Nucleic Acids Research 51(W1):W115-W121. https://doi.org/10.1093/nar/gkad328
+
+  [Promotech]           Promotech: a general tool for bacterial promoter recognition.
+                        Ruben Chevez-Guardado, Lourdes Pena-Castillo. 2021. Genome Biology 22:318.
+                        https://doi.org/10.1186/s13059-021-02514-9
 
   [PAZy]                Plastics degradation by hydrolytic enzymes: The plastics-active enzymes database-PAZy.
                         Patrick C. F. Buchholz, Golo Feuerriegel, Hongli Zhang, Pablo Perez-Garcia,

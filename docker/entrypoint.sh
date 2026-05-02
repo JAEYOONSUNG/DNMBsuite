@@ -235,6 +235,8 @@ normalize_module_name() {
     defensefinder|defense) echo "defensefinder" ;;
     dbapis) echo "dbapis" ;;
     acrfinder|acr) echo "acrfinder" ;;
+    promotech|promo|promoter) echo "promotech" ;;
+    mrnacal|mrna|mrna-cal) echo "mrnacal" ;;
     padloc) echo "padloc" ;;
     defensepredictor|defense-predictor) echo "defensepredictor" ;;
     rebasefinder|rebase) echo "rebasefinder" ;;
@@ -262,6 +264,8 @@ set_all_modules() {
   MODULE_DEFENSEFINDER="$value"
   MODULE_DBAPIS="$value"
   MODULE_ACRFINDER="$value"
+  MODULE_PROMOTECH="$value"
+  MODULE_MRNACAL="$value"
   MODULE_PADLOC="$value"
   MODULE_DEFENSEPREDICTOR="$value"
   MODULE_REBASEFINDER="$value"
@@ -286,6 +290,8 @@ set_module_flag() {
     defensefinder) MODULE_DEFENSEFINDER="$value" ;;
     dbapis) MODULE_DBAPIS="$value" ;;
     acrfinder) MODULE_ACRFINDER="$value" ;;
+    promotech) MODULE_PROMOTECH="$value" ;;
+    mrnacal) MODULE_MRNACAL="$value" ;;
     padloc) MODULE_PADLOC="$value" ;;
     defensepredictor) MODULE_DEFENSEPREDICTOR="$value" ;;
     rebasefinder) MODULE_REBASEFINDER="$value" ;;
@@ -332,6 +338,8 @@ build_r_arg_string() {
   MODULE_DEFENSEFINDER=TRUE
   MODULE_DBAPIS=TRUE
   MODULE_ACRFINDER=TRUE
+  MODULE_PROMOTECH=TRUE
+  MODULE_MRNACAL=TRUE
   MODULE_PADLOC=TRUE
   MODULE_DEFENSEPREDICTOR=TRUE
   MODULE_REBASEFINDER=TRUE
@@ -383,6 +391,8 @@ build_r_arg_string() {
   r_args+=("module_DefenseFinder = ${MODULE_DEFENSEFINDER}")
   r_args+=("module_dbAPIS = ${MODULE_DBAPIS}")
   r_args+=("module_AcrFinder = ${MODULE_ACRFINDER}")
+  r_args+=("module_Promotech = ${MODULE_PROMOTECH}")
+  r_args+=("module_mRNAcal = ${MODULE_MRNACAL}")
   r_args+=("module_PADLOC = ${MODULE_PADLOC}")
   r_args+=("module_DefensePredictor = ${MODULE_DEFENSEPREDICTOR}")
   r_args+=("module_REBASEfinder = ${MODULE_REBASEFINDER}")

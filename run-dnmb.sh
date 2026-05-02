@@ -23,6 +23,7 @@ Options:
                             Supported names:
                             dbcan, merops, clean, pazy, gapmind,
                             defensefinder, dbapis, acrfinder,
+                            promotech, mrnacal,
                             padloc, defensepredictor,
                             rebasefinder, iselement,
                             phispy, virsorter2, pide,
@@ -77,6 +78,8 @@ normalize_module_name() {
     defensefinder|defense) echo "defensefinder" ;;
     dbapis) echo "dbapis" ;;
     acrfinder|acr) echo "acrfinder" ;;
+    promotech|promo|promoter) echo "promotech" ;;
+    mrnacal|mrna|mrna-cal) echo "mrnacal" ;;
     padloc) echo "padloc" ;;
     defensepredictor|defense-predictor) echo "defensepredictor" ;;
     rebasefinder|rebase) echo "rebasefinder" ;;
@@ -132,6 +135,8 @@ MODULE_GAPMIND=TRUE
 MODULE_DEFENSEFINDER=TRUE
 MODULE_DBAPIS=TRUE
 MODULE_ACRFINDER=TRUE
+MODULE_PROMOTECH=TRUE
+MODULE_MRNACAL=TRUE
 MODULE_PADLOC=TRUE
 MODULE_DEFENSEPREDICTOR=TRUE
 MODULE_REBASEFINDER=TRUE
@@ -153,6 +158,8 @@ set_all_modules() {
   MODULE_DEFENSEFINDER="$value"
   MODULE_DBAPIS="$value"
   MODULE_ACRFINDER="$value"
+  MODULE_PROMOTECH="$value"
+  MODULE_MRNACAL="$value"
   MODULE_PADLOC="$value"
   MODULE_DEFENSEPREDICTOR="$value"
   MODULE_REBASEFINDER="$value"
@@ -177,6 +184,8 @@ set_module_flag() {
     defensefinder) MODULE_DEFENSEFINDER="$value" ;;
     dbapis) MODULE_DBAPIS="$value" ;;
     acrfinder) MODULE_ACRFINDER="$value" ;;
+    promotech) MODULE_PROMOTECH="$value" ;;
+    mrnacal) MODULE_MRNACAL="$value" ;;
     padloc) MODULE_PADLOC="$value" ;;
     defensepredictor) MODULE_DEFENSEPREDICTOR="$value" ;;
     rebasefinder) MODULE_REBASEFINDER="$value" ;;
@@ -350,6 +359,8 @@ R_ARGS+=("module_GapMind = ${MODULE_GAPMIND}")
 R_ARGS+=("module_DefenseFinder = ${MODULE_DEFENSEFINDER}")
 R_ARGS+=("module_dbAPIS = ${MODULE_DBAPIS}")
 R_ARGS+=("module_AcrFinder = ${MODULE_ACRFINDER}")
+R_ARGS+=("module_Promotech = ${MODULE_PROMOTECH}")
+R_ARGS+=("module_mRNAcal = ${MODULE_MRNACAL}")
 R_ARGS+=("module_PADLOC = ${MODULE_PADLOC}")
 R_ARGS+=("module_DefensePredictor = ${MODULE_DEFENSEPREDICTOR}")
 R_ARGS+=("module_REBASEfinder = ${MODULE_REBASEFINDER}")
