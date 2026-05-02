@@ -48,7 +48,16 @@ if (any(promotech_bad)) {
 }
 
 acr_module <- DNMB:::dnmb_acrfinder_get_module(cache_root = Sys.getenv("DNMB_CACHE_ROOT"), required = TRUE)
-acr_paths <- strsplit(Sys.getenv("PATH"), .Platform$path.sep, fixed = TRUE)[[1]]
+inherited <- strsplit(Sys.getenv("PATH"), .Platform$path.sep, fixed = TRUE)[[1]]
+acr_env_python <- if (!is.null(acr_module$files$env_python)) acr_module$files$env_python else ""
+acr_paths <- unique(c(
+  file.path(acr_module$manifest$repo_dir, "bin"),
+  dirname(acr_env_python),
+  "/usr/bin", "/usr/local/bin", "/usr/sbin",
+  inherited,
+  file.path(acr_module$manifest$repo_dir, "dependencies", "CRISPRCasFinder", "bin")
+))
+acr_paths <- acr_paths[nzchar(acr_paths) & file.exists(acr_paths)]
 acr_status <- DNMB:::.dnmb_acrfinder_runtime_status(acr_paths, repo_dir = acr_module$manifest$repo_dir)
 acr_bad <- acr_status$status %in% c("missing", "failed")
 if (any(acr_bad)) {
