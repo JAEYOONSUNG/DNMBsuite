@@ -173,6 +173,28 @@ if [ "${DNMB_ENTRYPOINT_SKIP_ROOT_SETUP:-0}" != "1" ]; then
     fi
   fi
 
+  PHISPY_CACHE_ROOT="${DNMB_CACHE_ROOT:-/opt/dnmb-cache}/db_modules/prophage"
+  if [ -f /opt/dnmb-seed/prophage/phispy.tar.gz ]; then
+    if [ ! -x "$PHISPY_CACHE_ROOT/phispy/venv/bin/python" ] || \
+       ! "$PHISPY_CACHE_ROOT/phispy/venv/bin/python" -c 'import os, sysconfig; inc = sysconfig.get_config_var("INCLUDEPY") or ""; raise SystemExit(0 if os.path.exists(os.path.join(inc, "Python.h")) else 1)' >/dev/null 2>&1 || \
+       ! "$PHISPY_CACHE_ROOT/phispy/venv/bin/PhiSpy.py" --help >/dev/null 2>&1; then
+      rm -rf "$PHISPY_CACHE_ROOT/phispy"
+      mkdir -p "$PHISPY_CACHE_ROOT"
+      tar -xzf /opt/dnmb-seed/prophage/phispy.tar.gz -C "$PHISPY_CACHE_ROOT"
+    fi
+  fi
+
+  DEFENSEPREDICTOR_CACHE_ROOT="${DNMB_CACHE_ROOT:-/opt/dnmb-cache}/db_modules/defensepredictor"
+  if [ -f /opt/dnmb-seed/defensepredictor/current.tar.gz ]; then
+    if [ ! -x "$DEFENSEPREDICTOR_CACHE_ROOT/current/venv/bin/python" ] || \
+       ! "$DEFENSEPREDICTOR_CACHE_ROOT/current/venv/bin/python" -m pip --version >/dev/null 2>&1 || \
+       ! "$DEFENSEPREDICTOR_CACHE_ROOT/current/bin/defense_predictor" --help >/dev/null 2>&1; then
+      rm -rf "$DEFENSEPREDICTOR_CACHE_ROOT/current"
+      mkdir -p "$DEFENSEPREDICTOR_CACHE_ROOT"
+      tar -xzf /opt/dnmb-seed/defensepredictor/current.tar.gz -C "$DEFENSEPREDICTOR_CACHE_ROOT"
+    fi
+  fi
+
   if [ -x "$CLEAN_CACHE_ROOT/conda_env/bin/python" ] && [ -f "$CLEAN_CACHE_ROOT/CLEAN/app/build.py" ]; then
     if ! "$CLEAN_CACHE_ROOT/conda_env/bin/python" -c "import CLEAN" >/dev/null 2>&1; then
       (
