@@ -30,6 +30,7 @@ RUN apt-get -o Acquire::Retries=5 update \
     cmake pkg-config curl wget git procps ca-certificates locales gosu \
     cpanminus bioperl bioperl-run emboss emboss-lib clustalw muscle \
     python2 libdatetime-perl libxml-simple-perl libdigest-md5-perl \
+    python3-dev python3-venv python3.10-dev python3.10-venv \
     libdbi-perl libdbd-sqlite3-perl \
     default-jdk \
     libwebp-dev \
@@ -50,6 +51,7 @@ RUN curl -fsSL https://github.com/conda-forge/miniforge/releases/latest/download
 RUN /opt/miniforge/bin/conda create -y -p /opt/biotools \
     -c bioconda -c conda-forge \
     python=3.12 \
+    pip \
     biopython \
     bioconductor-biostrings \
     bioconductor-complexheatmap \
@@ -185,6 +187,8 @@ RUN echo "DNMB install cache bust: ${DNMB_INSTALL_CACHE_BUST}" >/dev/null \
 RUN Rscript -e 'DNMB:::dnmb_defensefinder_install_module(cache_root = Sys.getenv("DNMB_CACHE_ROOT"), install = TRUE, repo_url = Sys.getenv("DNMB_DEFENSEFINDER_REPO_DIR"), asset_urls = list(casfinder_dir = Sys.getenv("DNMB_DEFENSEFINDER_CASFINDER_DIR")), force = TRUE)'
 RUN Rscript -e 'DNMB:::dnmb_dbapis_install_module(cache_root = Sys.getenv("DNMB_CACHE_ROOT"), install = TRUE, repo_url = Sys.getenv("DNMB_DBAPIS_REPO_DIR"), asset_urls = list(repo_dir = Sys.getenv("DNMB_DBAPIS_REPO_DIR")), force = TRUE)'
 RUN Rscript -e 'DNMB:::dnmb_acrfinder_install_module(cache_root = Sys.getenv("DNMB_CACHE_ROOT"), install = TRUE, repo_url = Sys.getenv("DNMB_ACRFINDER_REPO_DIR"), asset_urls = list(repo_dir = Sys.getenv("DNMB_ACRFINDER_REPO_DIR")), force = TRUE)'
+RUN Rscript -e 'DNMB:::dnmb_prophage_install_module(cache_root = Sys.getenv("DNMB_CACHE_ROOT"), install = TRUE, force = TRUE)'
+RUN Rscript -e 'DNMB:::dnmb_defensepredictor_install_module(cache_root = Sys.getenv("DNMB_CACHE_ROOT"), install = TRUE, force = TRUE)'
 
 RUN mkdir -p /opt/dnmb-seed/defensefinder \
     && tar -C ${DNMB_CACHE_ROOT}/db_modules/defensefinder -czf /opt/dnmb-seed/defensefinder/current.tar.gz current
@@ -192,6 +196,10 @@ RUN mkdir -p /opt/dnmb-seed/dbapis \
     && tar -C ${DNMB_CACHE_ROOT}/db_modules/dbapis -czf /opt/dnmb-seed/dbapis/current.tar.gz current
 RUN mkdir -p /opt/dnmb-seed/acrfinder \
     && tar -C ${DNMB_CACHE_ROOT}/db_modules/acrfinder -czf /opt/dnmb-seed/acrfinder/current.tar.gz current
+RUN mkdir -p /opt/dnmb-seed/prophage \
+    && tar -C ${DNMB_CACHE_ROOT}/db_modules/prophage -czf /opt/dnmb-seed/prophage/phispy.tar.gz phispy
+RUN mkdir -p /opt/dnmb-seed/defensepredictor \
+    && tar -C ${DNMB_CACHE_ROOT}/db_modules/defensepredictor -czf /opt/dnmb-seed/defensepredictor/current.tar.gz current
 
 RUN mkdir -p /data /results ${DNMB_CACHE_ROOT} /opt/biotools/data /opt/biotools/test
 
