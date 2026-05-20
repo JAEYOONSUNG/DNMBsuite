@@ -56,6 +56,12 @@ cleanup_output_dir() {
 
   rm -rf "$output_dir/temp" 2>/dev/null || true
   rm -f "$output_dir/Rplots.pdf" "$output_dir/Rplot.pdf" 2>/dev/null || true
+
+  if [ "${DNMB_KEEP_PROMOTECH_INTERMEDIATES:-0}" != "1" ]; then
+    find "$output_dir/dnmb_module_promotech/promotech_runs" \
+      -type f \( -name 'RF-HOT*.data' -o -name 'SEQS*.data' -o -name 'CHROM.data' \) \
+      -delete 2>/dev/null || true
+  fi
 }
 
 ensure_image() {
