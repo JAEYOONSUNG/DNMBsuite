@@ -55,6 +55,7 @@ RUN /opt/miniforge/bin/conda create -y -p /opt/biotools \
     biopython \
     bioconductor-biostrings \
     bioconductor-complexheatmap \
+    r-tidyverse \
     hmmer blast prodigal diamond padloc \
     dbcan \
     eggnog-mapper \
@@ -62,6 +63,10 @@ RUN /opt/miniforge/bin/conda create -y -p /opt/biotools \
     phispy \
     perl-dbi perl-lwp-simple perl-dbd-sqlite \
     && /opt/miniforge/bin/conda clean -afy
+
+RUN /opt/biotools/bin/python -m pip install --no-cache-dir 'dbcan==5.2.8' \
+    && test -x /opt/biotools/bin/run_dbcan \
+    && /opt/biotools/bin/run_dbcan --help >/dev/null
 
 ENV PATH="/opt/biotools/bin:${PATH}"
 
