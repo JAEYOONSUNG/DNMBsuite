@@ -327,6 +327,7 @@ Notes:
 ### First-run behavior
 
 - the first run can take a long time because module assets may need to be downloaded into `~/.dnmb-cache`
+- REBASEfinder installs its local ProMod3 backend through the bundled `micromamba` on first use; allow at least 5 GiB of free space for that installation
 - later runs are much faster because DNMB reuses the shared cache and matching previous outputs
 - `clean_previous = TRUE` removes stale run artifacts but preserves matching reusable outputs when the input genome has not changed
 - DNMB core auto-update is disabled by default so a published image stays reproducible; opt in only when you intentionally want the container to track the latest GitHub branch
@@ -492,6 +493,7 @@ Pass `auto_run_missing = FALSE` to render only what already exists.
 
 - Put exactly the input GenBank files you want to analyze into `./data`.
 - The first run can take a long time because module assets may need to be downloaded into `~/.dnmb-cache`.
+- The first REBASEfinder run installs ProMod3 through the bundled `micromamba`; allow at least 5 GiB of free space while the managed environment is created.
 - Later runs should be much faster because DNMB reuses the shared cache and matching previous outputs.
 - If you want a clean rerun but still keep reusable outputs, keep `clean_previous = TRUE`. The current DNMB logic preserves matching cached module and external annotation outputs when the input genome has not changed.
 - DNMB auto-update is off by default. Leave it off for reproducible runs; enable it only when you explicitly want to refresh the bundled DNMB package from GitHub.
@@ -562,6 +564,7 @@ inside the container, and `DNMB_CACHE_ROOT` is set automatically.
 This means:
 
 - module databases are downloaded once and reused
+- the managed REBASEfinder ProMod3 environment is installed once and reused from the shared cache
 - Docker and local DNMB runs can share the same cache
 - users normally do not need to set `module_cache_root` manually inside the container
 - the DNMBsuite container seeds the CLEAN Python environment into the mounted host cache when it is missing
@@ -579,6 +582,8 @@ master
 ```
 
 Container startup does not mutate that installed core unless you explicitly set `DNMB_AUTO_UPDATE=1`.
+
+Pushing a new DNMB core commit does not replace an existing DNMBsuite image. Rebuild and publish DNMBsuite against the new core ref, then pull the new image, or explicitly opt in to the runtime update above.
 
 If you need to override the build-time core ref, use `DNMB_REF`:
 

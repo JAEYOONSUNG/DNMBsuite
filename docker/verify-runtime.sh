@@ -11,10 +11,13 @@ need_bin() {
 for bin in \
   Rscript hmmsearch hmmpress hmmscan blastp blastn makeblastdb diamond prodigal \
   run_dbcan padloc emapper.py phispy RNAfold RNAplfold RNAduplex \
-  vmatch2 mkvtree2 vsubseqselect2 rpsblast rpsblast+ clustalw clustalw2 muscle
+  vmatch2 mkvtree2 vsubseqselect2 rpsblast rpsblast+ clustalw clustalw2 muscle \
+  micromamba
 do
   need_bin "$bin"
 done
+
+micromamba --version >/dev/null
 
 test -f "${DNMB_VMATCH_SEL392}"
 test -f /usr/lib/vmatch/SELECT/sel392.so

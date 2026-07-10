@@ -224,7 +224,8 @@ RUN apt-get -o Acquire::Retries=5 update \
 RUN mkdir -p /tmp/micromamba \
     && curl -fsSL https://micro.mamba.pm/api/micromamba/linux-64/latest -o /tmp/micromamba.tar.bz2 \
     && tar -xjf /tmp/micromamba.tar.bz2 -C /tmp/micromamba bin/micromamba \
-    && /tmp/micromamba/bin/micromamba create -y -p /opt/promotech \
+    && install -m 0755 /tmp/micromamba/bin/micromamba /usr/local/bin/micromamba \
+    && micromamba create -y -p /opt/promotech \
       -c conda-forge -c bioconda \
       python=3.8 \
       numpy=1.19.5 \
@@ -234,7 +235,7 @@ RUN mkdir -p /tmp/micromamba \
       biopython=1.78 \
       progressbar2 \
       'python-utils<3.9' \
-    && /tmp/micromamba/bin/micromamba clean -afy \
+    && micromamba clean -afy \
     && rm -rf /tmp/micromamba /tmp/micromamba.tar.bz2 /root/.cache/mamba \
     && /opt/promotech/bin/python -c 'import numpy, pandas, joblib, Bio, progressbar, sklearn; assert sklearn.__version__.startswith("0.23")'
 
