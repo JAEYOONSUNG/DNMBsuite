@@ -27,7 +27,7 @@ RUN apt-get -o Acquire::Retries=5 update \
     libfontconfig1-dev libfreetype6-dev libpng-dev libtiff-dev libjpeg-dev \
     libharfbuzz-dev libfribidi-dev \
     zlib1g-dev libbz2-dev liblzma-dev libpcre2-dev libicu-dev libgit2-dev \
-    cmake pkg-config curl wget git procps ca-certificates locales gosu \
+    cmake pkg-config curl wget git jq procps ca-certificates locales gosu \
     cpanminus bioperl bioperl-run emboss emboss-lib clustalw muscle \
     python2 libdatetime-perl libxml-simple-perl libdigest-md5-perl \
     python3-dev python3-venv python3.10-dev python3.10-venv \
