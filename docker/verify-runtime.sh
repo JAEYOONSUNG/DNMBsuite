@@ -10,7 +10,7 @@ need_bin() {
 
 for bin in \
   Rscript hmmsearch hmmpress hmmscan blastp blastn makeblastdb diamond prodigal \
-  run_dbcan padloc emapper.py phispy RNAfold RNAplfold RNAduplex \
+  run_dbcan padloc emapper.py download_eggnog_data.py phispy RNAfold RNAplfold RNAduplex \
   vmatch2 mkvtree2 vsubseqselect2 rpsblast rpsblast+ clustalw clustalw2 muscle \
   micromamba
 do
@@ -23,9 +23,36 @@ test -f "${DNMB_VMATCH_SEL392}"
 test -f /usr/lib/vmatch/SELECT/sel392.so
 
 /opt/biotools/bin/python - <<'PY'
+import glob
+import json
+
 mods = ["numpy", "pandas", "joblib", "Bio", "progressbar", "sklearn"]
 for mod in mods:
     __import__(mod)
+
+packages = {}
+for path in glob.glob("/opt/biotools/conda-meta/*.json"):
+    with open(path, encoding="utf-8") as handle:
+        metadata = json.load(handle)
+    packages[metadata["name"]] = metadata["version"]
+
+assert packages.get("dbcan") == "5.2.9", packages.get("dbcan")
+PY
+
+run_dbcan version | grep -F '5.2.9' >/dev/null
+test -x /opt/biotools/envs/eggnog/bin/emapper.py
+test "$(readlink -f "$(command -v emapper.py)")" = "/opt/biotools/envs/eggnog/bin/emapper.py"
+/opt/biotools/envs/eggnog/bin/python - <<'PY'
+import glob
+import json
+
+packages = {}
+for path in glob.glob("/opt/biotools/envs/eggnog/conda-meta/*.json"):
+    with open(path, encoding="utf-8") as handle:
+        metadata = json.load(handle)
+    packages[metadata["name"]] = metadata["version"]
+
+assert packages.get("eggnog-mapper") == "2.1.15", packages.get("eggnog-mapper")
 PY
 
 test -x "${DNMB_PROMOTECH_PYTHON}"
@@ -102,6 +129,22 @@ if (any(acr_bad)) {
 dbcan_sig <- DNMB:::.dnmb_collect_module_db_signatures("dbCAN", module_cache_root = Sys.getenv("DNMB_CACHE_ROOT"))
 if (!isTRUE(dbcan_sig[["dbCAN"]][["run_dbcan_available"]])) {
   stop("dbCAN runtime check failed: run_dbcan is not available.", call. = FALSE)
+}
+
+defensefinder <- DNMB:::dnmb_defensefinder_get_module(
+  cache_root = Sys.getenv("DNMB_CACHE_ROOT"),
+  required = TRUE
+)
+if (!identical(defensefinder$manifest$tool_version, "3.0.0")) {
+  stop("DefenseFinder runtime version mismatch: ", defensefinder$manifest$tool_version, call. = FALSE)
+}
+if (!identical(defensefinder$manifest$models_version, "3.1.0")) {
+  stop("DefenseFinder models version mismatch: ", defensefinder$manifest$models_version, call. = FALSE)
+}
+
+emapper <- DNMB:::dnmb_detect_emapper(required = TRUE)
+if (!identical(emapper$version, "2.1.15")) {
+  stop("eggNOG-mapper package version mismatch: ", emapper$version, call. = FALSE)
 }
 
 cat("DNMBsuite runtime verification passed\n")

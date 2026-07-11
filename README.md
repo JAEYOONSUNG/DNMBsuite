@@ -243,6 +243,10 @@ docker run --rm \
 
 ### Module runtime notes
 
+- The image pins dbCAN `5.2.9`, eggNOG-mapper `2.1.15`, DefenseFinder
+  `3.0.0`, DefenseFinder models `3.1.0`, CasFinder `3.1.0`, and MacSyFinder
+  `2.1.4`. eggNOG-mapper uses an isolated environment so its DIAMOND/ICU
+  constraints do not alter the dbCAN, PADLOC, or core DNMB runtime.
 - `dbCAN` runs the full `run_dbcan` workflow when available, including CGC
   outputs such as `dnmb_module_dbcan/run_dbcan/cgc_standard_out.tsv`,
   `substrate_prediction.tsv`, and `overview.tsv`. DNMB records whether

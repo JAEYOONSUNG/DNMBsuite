@@ -1,7 +1,8 @@
 ## DNMBsuite Docker image
 ## Builds the container wrapper and installs the DNMB core package from GitHub.
 
-FROM --platform=linux/amd64 rocker/r-ver:4.4.1
+ARG DNMB_BASE_PLATFORM=linux/amd64
+FROM --platform=${DNMB_BASE_PLATFORM} rocker/r-ver:4.4.1
 
 ARG DNMB_REPO=https://github.com/JAEYOONSUNG/DNMB.git
 ARG DNMB_REF=master
@@ -12,6 +13,7 @@ ENV DNMB_CACHE_ROOT=/opt/dnmb-cache
 ENV MAMBA_ROOT_PREFIX=/opt/dnmb-cache/micromamba
 ENV DNMB_DEFENSEFINDER_CASFINDER_DIR=/root/.macsyfinder/models/CasFinder
 ENV DNMB_DEFENSEFINDER_REPO_DIR=/opt/vendor/defense-finder
+ENV DNMB_DEFENSEFINDER_MODELS_DIR=/opt/vendor/defense-finder-models
 ENV DNMB_DBAPIS_REPO_DIR=/opt/vendor/dbAPIS
 ENV DNMB_ACRFINDER_REPO_DIR=/opt/vendor/acrfinder
 ENV R_LIBS_SITE=/opt/biotools/lib/R/library
@@ -51,23 +53,29 @@ RUN curl -fsSL https://github.com/conda-forge/miniforge/releases/latest/download
 
 RUN /opt/miniforge/bin/conda create -y -p /opt/biotools \
     -c bioconda -c conda-forge \
-    python=3.12 \
+    python=3.11 \
     pip \
     biopython \
     bioconductor-biostrings \
     bioconductor-complexheatmap \
     r-tidyverse \
     hmmer blast prodigal diamond padloc \
-    dbcan \
-    eggnog-mapper \
+    dbcan=5.2.9 \
     entrez-direct skani fastani \
     phispy \
     perl-dbi perl-lwp-simple perl-dbd-sqlite \
+    && /opt/miniforge/bin/conda create -y -p /opt/biotools/envs/eggnog \
+       -c bioconda -c conda-forge \
+       python=3.11 eggnog-mapper=2.1.15 \
+    && ln -sf /opt/biotools/envs/eggnog/bin/emapper.py /opt/biotools/bin/emapper.py \
+    && ln -sf /opt/biotools/envs/eggnog/bin/download_eggnog_data.py /opt/biotools/bin/download_eggnog_data.py \
     && /opt/miniforge/bin/conda clean -afy
 
-RUN /opt/biotools/bin/python -m pip install --no-cache-dir 'dbcan==5.2.8' \
-    && test -x /opt/biotools/bin/run_dbcan \
-    && /opt/biotools/bin/run_dbcan --help >/dev/null
+RUN test -x /opt/biotools/bin/run_dbcan \
+    && /opt/biotools/bin/run_dbcan version | grep -F '5.2.9' \
+    && test -x /opt/biotools/envs/eggnog/bin/emapper.py \
+    && /opt/biotools/bin/python -c 'import glob,json; files=glob.glob("/opt/biotools/conda-meta/*.json"); versions={m["name"]:m["version"] for m in map(lambda p: json.load(open(p)), files)}; assert versions.get("dbcan")=="5.2.9", versions' \
+    && /opt/biotools/envs/eggnog/bin/python -c 'import glob,json; files=glob.glob("/opt/biotools/envs/eggnog/conda-meta/*.json"); versions={m["name"]:m["version"] for m in map(lambda p: json.load(open(p)), files)}; assert versions.get("eggnog-mapper")=="2.1.15", versions'
 
 ENV PATH="/opt/biotools/bin:${PATH}"
 
@@ -129,9 +137,13 @@ RUN export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64 \
 RUN R -e 'remotes::install_github("JAEYOONSUNG/DefenseViz", dependencies = FALSE, upgrade = "never")'
 
 RUN /opt/biotools/bin/python -m pip install --no-cache-dir 'macsyfinder==2.1.4' \
-    && /opt/biotools/bin/macsydata install -u 'CasFinder==3.1.0'
+    && mkdir -p /root/.macsyfinder/models \
+    && git clone --branch 3.1.0 --depth 1 \
+       https://github.com/macsy-models/CasFinder.git \
+       /root/.macsyfinder/models/CasFinder
 
-RUN git clone --branch v2.0.1 --depth 1 https://github.com/mdmparis/defense-finder.git /opt/vendor/defense-finder
+RUN git clone --branch v3.0.0 --depth 1 https://github.com/mdmparis/defense-finder.git /opt/vendor/defense-finder
+RUN git clone --branch 3.1.0 --depth 1 https://github.com/mdmparis/defense-finder-models.git /opt/vendor/defense-finder-models
 RUN git clone --depth 1 https://github.com/azureycy/dbAPIS.git /opt/vendor/dbAPIS
 RUN git clone --depth 1 https://github.com/HaidYi/acrfinder.git /opt/vendor/acrfinder
 
@@ -190,7 +202,7 @@ RUN echo "DNMB install cache bust: ${DNMB_INSTALL_CACHE_BUST}" >/dev/null \
     fi \
     && rm -rf /tmp/DNMB /tmp/DNMB-local
 
-RUN Rscript -e 'DNMB:::dnmb_defensefinder_install_module(cache_root = Sys.getenv("DNMB_CACHE_ROOT"), install = TRUE, repo_url = Sys.getenv("DNMB_DEFENSEFINDER_REPO_DIR"), asset_urls = list(casfinder_dir = Sys.getenv("DNMB_DEFENSEFINDER_CASFINDER_DIR")), force = TRUE)'
+RUN Rscript -e 'DNMB:::dnmb_defensefinder_install_module(cache_root = Sys.getenv("DNMB_CACHE_ROOT"), install = TRUE, repo_url = Sys.getenv("DNMB_DEFENSEFINDER_REPO_DIR"), asset_urls = list(models_dir = Sys.getenv("DNMB_DEFENSEFINDER_MODELS_DIR"), casfinder_dir = Sys.getenv("DNMB_DEFENSEFINDER_CASFINDER_DIR")), force = TRUE)'
 RUN Rscript -e 'DNMB:::dnmb_dbapis_install_module(cache_root = Sys.getenv("DNMB_CACHE_ROOT"), install = TRUE, repo_url = Sys.getenv("DNMB_DBAPIS_REPO_DIR"), asset_urls = list(repo_dir = Sys.getenv("DNMB_DBAPIS_REPO_DIR")), force = TRUE)'
 RUN Rscript -e 'DNMB:::dnmb_acrfinder_install_module(cache_root = Sys.getenv("DNMB_CACHE_ROOT"), install = TRUE, repo_url = Sys.getenv("DNMB_ACRFINDER_REPO_DIR"), asset_urls = list(repo_dir = Sys.getenv("DNMB_ACRFINDER_REPO_DIR")), force = TRUE)'
 RUN Rscript -e 'DNMB:::dnmb_prophage_install_module(cache_root = Sys.getenv("DNMB_CACHE_ROOT"), install = TRUE, force = TRUE)' \
