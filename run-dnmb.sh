@@ -12,6 +12,7 @@ Examples:
   ./run-dnmb.sh /path/to/genome.gbff --modules defensefinder,iselement,prophage
   ./run-dnmb.sh /path/to/genome.gbff --skip-modules interproscan,eggnog --cpu 8
   ./run-dnmb.sh /path/to/genome.gbff --dnmb-auto-update --dnmb-auto-update-branch master
+  ./run-dnmb.sh /path/to/genome.gbff --interproscan-update always
 
 Behavior:
   - If output_dir is omitted, DNMB writes results next to the input GenBank file.
@@ -36,6 +37,7 @@ Options:
   --dnmb-auto-update        Opt in to DNMB package auto-update at container startup.
   --dnmb-auto-update-branch <name>
                             Git branch to follow when auto-update is enabled.
+  --interproscan-update <x> InterProScan cache update policy: ask, always, or never.
   --image <image>           Override the Docker image to run.
 
 GPU defaults:
@@ -214,6 +216,7 @@ PROPHAGE_BACKEND=""
 CLEAN_PREVIOUS="TRUE"
 DNMB_AUTO_UPDATE="${DNMB_AUTO_UPDATE:-0}"
 DNMB_AUTO_UPDATE_BRANCH="${DNMB_AUTO_UPDATE_BRANCH:-master}"
+DNMB_INTERPROSCAN_UPDATE="${DNMB_INTERPROSCAN_UPDATE:-ask}"
 IMAGE="${DNMBSUITE_IMAGE:-ghcr.io/jaeyoonsung/dnmbsuite:latest}"
 
 while [ "$#" -gt 0 ]; do
@@ -248,6 +251,10 @@ while [ "$#" -gt 0 ]; do
       ;;
     --dnmb-auto-update-branch)
       DNMB_AUTO_UPDATE_BRANCH="${2:-}"
+      shift 2
+      ;;
+    --interproscan-update)
+      DNMB_INTERPROSCAN_UPDATE="${2:-}"
       shift 2
       ;;
     --image)
@@ -401,10 +408,17 @@ if [ "$CUDA_AVAILABLE" = TRUE ]; then
   GPU_ARGS+=(--gpus all)
 fi
 
+TTY_ARGS=()
+if [ -t 0 ] && [ -t 1 ]; then
+  TTY_ARGS+=(-it)
+fi
+
 if docker run --rm \
+  "${TTY_ARGS[@]}" \
   "${GPU_ARGS[@]}" \
   -e "DNMB_AUTO_UPDATE=$DNMB_AUTO_UPDATE" \
   -e "DNMB_AUTO_UPDATE_BRANCH=$DNMB_AUTO_UPDATE_BRANCH" \
+  -e "DNMB_INTERPROSCAN_UPDATE=$DNMB_INTERPROSCAN_UPDATE" \
   -e "DNMB_CUDA=$CUDA_AVAILABLE" \
   -v "$OUTPUT_ABS:/data" \
   -v "$CACHE_ROOT:/opt/dnmb-cache" \

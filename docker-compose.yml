@@ -16,6 +16,7 @@ services:
       - DNMB_CACHE_ROOT=/opt/dnmb-cache
       - DNMB_AUTO_UPDATE=${DNMB_AUTO_UPDATE:-0}
       - DNMB_AUTO_UPDATE_BRANCH=${DNMB_AUTO_UPDATE_BRANCH:-master}
+      - DNMB_INTERPROSCAN_UPDATE=${DNMB_INTERPROSCAN_UPDATE:-ask}
     working_dir: /data
 
   dnmbshell:
@@ -33,5 +34,6 @@ services:
       - DNMB_CACHE_ROOT=/opt/dnmb-cache
       - DNMB_AUTO_UPDATE=${DNMB_AUTO_UPDATE:-0}
       - DNMB_AUTO_UPDATE_BRANCH=${DNMB_AUTO_UPDATE_BRANCH:-master}
+      - DNMB_INTERPROSCAN_UPDATE=${DNMB_INTERPROSCAN_UPDATE:-ask}
     working_dir: /data
     command: ["R"]

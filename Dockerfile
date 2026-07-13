@@ -191,7 +191,7 @@ ENV PATH=/opt/biotools/bin:/opt/vendor/acrfinder/bin:/opt/vendor/acrfinder/depen
 
 COPY docker/local-dnmb-snapshot/ /tmp/DNMB-local/
 
-ARG DNMB_INSTALL_CACHE_BUST=0
+ARG DNMB_INSTALL_CACHE_BUST=20260713-interproscan-update
 RUN echo "DNMB install cache bust: ${DNMB_INSTALL_CACHE_BUST}" >/dev/null \
     && if [ "${DNMB_SOURCE}" = "local" ]; then \
       R -e 'remotes::install_local("/tmp/DNMB-local", dependencies = FALSE, upgrade = "never")'; \

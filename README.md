@@ -117,6 +117,12 @@ What this does:
 - uses `--pull always` in the direct examples so `latest` resolves to the newest pushed image instead of a stale local copy
 - lets you control module selection through `DNMB_MODULES`, `DNMB_SKIP_MODULES`, `DNMB_MODULE_CPU`, `DNMB_PROPHAGE_BACKEND`, `DNMB_CLEAN_PREVIOUS`, `DNMB_COMPARATIVE`, `DNMB_COMPARATIVE_DATA_ROOT`, and Promotech chunking through `DNMB_PROMOTECH_CHUNK_SIZE`
 
+DNMB checks the managed InterProScan cache against the latest EBI release. To
+answer the update prompt in a direct Docker run, attach a terminal with `-it`.
+Approved updates remove only the outdated InterProScan version before the new
+release is downloaded. For unattended runs, set
+`-e DNMB_INTERPROSCAN_UPDATE=always`; use `never` to keep the installed release.
+
 ## Optional Shell Launcher
 
 If you prefer not to type the Docker command manually, use the bundled shell
@@ -166,6 +172,12 @@ Opt in to a startup DNMB refresh from GitHub:
 bash run-dnmb.sh /path/to/GCF_030369615.1.gbff --dnmb-auto-update --dnmb-auto-update-branch master
 ```
 
+Automatically replace an outdated InterProScan cache in an unattended run:
+
+```bash
+bash run-dnmb.sh /path/to/GCF_030369615.1.gbff --interproscan-update always
+```
+
 What this launcher does:
 
 - pulls `ghcr.io/jaeyoonsung/dnmbsuite:latest` automatically when missing
@@ -174,6 +186,7 @@ What this launcher does:
 - copies the input GenBank file into the output directory when needed
 - runs the same built-in container launcher
 - keeps the bundled DNMB package fixed unless you explicitly opt in to `DNMB_AUTO_UPDATE=1`
+- prompts before replacing an outdated InterProScan cache when attached to a terminal
 
 In single-file mode, DNMBsuite stages only that file, runs the analysis, and
 writes outputs back next to the original input file.
@@ -543,6 +556,12 @@ Opt in to DNMB startup refresh only when desired:
 DNMB_AUTO_UPDATE=1 DNMB_AUTO_UPDATE_BRANCH=master docker compose up
 ```
 
+For an unattended InterProScan cache upgrade:
+
+```bash
+DNMB_INTERPROSCAN_UPDATE=always docker compose up
+```
+
 Use a different output tag locally:
 
 ```bash
@@ -572,6 +591,7 @@ This means:
 - Docker and local DNMB runs can share the same cache
 - users normally do not need to set `module_cache_root` manually inside the container
 - the DNMBsuite container seeds the CLEAN Python environment into the mounted host cache when it is missing
+- `DNMB_INTERPROSCAN_UPDATE=ask|always|never` controls replacement of an outdated managed InterProScan cache; the default is `ask`
 
 ## Core Source
 
